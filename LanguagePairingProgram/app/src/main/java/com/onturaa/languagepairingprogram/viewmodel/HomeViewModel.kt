@@ -33,4 +33,15 @@ class HomeViewModel @Inject constructor(
             }
         )
     }
+
+    fun onBack() {
+        uiStateFlow.value = uiStateFlow.value.copy(
+            currentStep = when (uiStateFlow.value.currentStep) {
+                Step.Instructions2 -> Step.Instructions1
+                Step.Instructions1 -> Step.LEP
+                Step.LEP -> Step.Welcome
+                Step.Welcome -> Step.Welcome
+            }
+        )
+    }
 }
