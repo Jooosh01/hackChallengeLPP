@@ -1,17 +1,22 @@
-from flask import request , Flask
+from flask import Flask, Blueprint, request, render_template, session, redirect
 import json
-from db import User , Language, db, Match
+from db import db, User, Language, Match, Chatroom, Message
 from auth import generate_token
 from werkzeug.security import check_password_hash , generate_password_hash
+from flask_socketio import join_room, leave_room, emit, SocketIO
+from string import ascii_uppercase
+import random
 
 app = Flask(__name__)
 db_filename = "lang.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///%s" % db_filename
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 db.init_app(app)
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 def success_response(data, status=200):
@@ -48,6 +53,7 @@ def serialize_match(match):
         'status': match.status,
         'timestamp': match.timestamp.isoformat() if match.timestamp else None
     }
+
 @app.route('/login/', methods=['POST'])
 def login():
     auth_data = json.loads(request.data)
@@ -79,7 +85,7 @@ def create_user():
         user = User(
             netID=data['netID'],
             name=data['name'],
-            password_hash=generate_password_hash(data['password']),#(I have to fix this)
+            password_hash=generate_password_hash(data['password'], method='pbkdf2:sha256'),#(I have to fix this)
             level=data['level'],
             language_id=data['language_id'],
             custom_description=data.get('description', '')
@@ -169,6 +175,108 @@ def init_languages():
     db.session.commit()
     return success_response("Languages initialized")
 
+@app.route('/api/chatroom/', methods=["POST"])
+def create_chatroom():
+    try:
+        data = json.loads(request.data)
+        if not all(k in data for k in ['user1_id','user2_id']):
+            return failure_response("Missing required fields")
+        
+        chatroom = Chatroom(
+            user1_id=data['user1_id'],
+            user2_id=data['user2_id'],
+            active=True,
+        )
+
+        db.session.add(chatroom)
+        db.session.commit()
+        return success_response(chatroom.serialize(), 201)
+    except Exception as e:
+        return failure_response(str(e), 500)
+    
+@app.route('/api/chatroom/<int:chatroom_id>/', methods=["PUT"])
+def close_chatroom(chatroom_id):
+    chatroom = Chatroom.query.get(chatroom_id)
+    if not chatroom:
+        return failure_response("Chatroom not found", 404)
+    
+    chatroom.active = False;
+    
+    db.session.commit()
+    return success_response(chatroom.serialize())
+
+@app.route('/api/chatroom/<int:chatroom_id>/messages/', methods=["POST"])
+def send_message(chatroom_id):
+    try:
+        data = json.loads(request.data)
+        if not all(k in data for k in ['user_id','content']):
+            return failure_response("Missing required fields")
+        
+        message = save_message(chatroom_id, data['user_id'], data['content'])
+
+        return success_response(message, 201)
+    except Exception as e:
+        return failure_response(str(e), 500)
+    
+@app.route('/api/chatroom/<int:chatroom_id>/messages/', methods=["GET"])
+def get_message_history(chatroom_id):
+    chatroom = Chatroom.query.get(chatroom_id)
+    if not chatroom:
+        return failure_response('Chatroom not found', 404)
+    
+    message_history = []
+    for message in chatroom.messages:
+        message_history.append(message.serialize())
+
+    return success_response(json.dumps(message_history))
+
+@socketio.on('send message')
+def socket_message(data):
+    chatroom_id = data['chatroom_id']
+    user_id = data['user_id']
+    content = data['content']
+
+    if not chatroom_id or not user_id or not content:
+        emit("error", {"error": "Missing required fields"})
+        return
+
+    message = save_message(chatroom_id, user_id, content)
+
+    emit('receive_message', message, room='chatroom_'+str(chatroom_id))
+
+@socketio.on('join chatroom')
+def on_join(data):
+    chatroom_id = data['chatroom_id']
+    user_id = data['user_id']
+
+    if not chatroom_id or not user_id:
+        emit("error", {"error": "Missing required fields"})
+        return
+    
+    chatroom = Chatroom.query.get(chatroom_id)
+    if not chatroom:
+        emit('error', {'msg': 'Chatroom not found'})
+        return
+
+    if user_id != chatroom.user1_id and user_id != chatroom.user2_id:
+        emit('error', {'msg': 'Not allowed to join this chatroom'})
+        return
+    
+    join_room('chatroom_'+str(chatroom_id))
+    emit('user_joined', {"msg": "User joined chatroom "+str(chatroom_id)}, room='chatroom_'+str(chatroom_id))
+
+# Helper for storing messages
+def save_message(chatroom_id, user_id, content):
+        message = Message(
+            chatroom_id=chatroom_id,
+            user_id=user_id,
+            content=content,
+        )
+
+        db.session.add(message)
+        db.session.commit()
+
+        return message.serialize();
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
