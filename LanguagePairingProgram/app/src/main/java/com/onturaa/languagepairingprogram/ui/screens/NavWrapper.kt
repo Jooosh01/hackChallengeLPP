@@ -1,6 +1,5 @@
 package com.onturaa.languagepairingprogram.ui.screens
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,8 +17,12 @@ fun NavWrapper() {
             HomeScreen()
         }
 
-        composable(route = Screen.FormScreen.route) {
-            FormScreen()
+        composable(route = Screen.PartnerScreen.route) {
+            PartnerScreen()
+        }
+
+        composable(route = Screen.ChatScreen.route) {
+            ChatScreen()
         }
     }
 }
