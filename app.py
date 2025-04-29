@@ -152,6 +152,44 @@ def update_match_status(user_id):
     db.session.commit()
     return success_response(serialize_user(user))
 
+@app.route('/api/matches/auto_match/', methods=['POST'])
+def auto_match():
+    try:
+        data = json.loads(request.data)
+        user_id = data.get('user_id')
+        if not user_id:
+            return failure_response("Missing user ID")
+
+        user = User.query.get(user_id)
+        if not user:
+            return failure_response("User not found", 404)
+
+        if user.match_status:
+            return failure_response("User is already matched")
+
+        potential_match = User.query.filter(
+            User.id != user_id,
+            User.language_id == user.language_id,
+            User.match_status == False
+            ).first()
+
+        if not potential_match:
+            return failure_response("No suitable match found")
+
+        match = Match(
+            user1_id=user.id,
+            user2_id=potential_match.id,
+            status='pending'
+        )
+        db.session.add(match)
+        db.session.commit()
+        update_match_status(user.id)
+        update_match_status(potential_match.id)
+
+        return success_response(serialize_match(match), 201)
+    except Exception as e:
+        return failure_response(str(e), 500)
+
 @app.route('/api/users/<int:user_id>/', methods=['GET'])
 def get_user(user_id):
     user = User.query.get(user_id)
@@ -276,7 +314,7 @@ def save_message(chatroom_id, user_id, content):
         db.session.add(message)
         db.session.commit()
 
-        return message.serialize();
+        return message.serialize()
 
 if __name__ == '__main__':
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
