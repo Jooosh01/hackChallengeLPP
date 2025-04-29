@@ -14,7 +14,12 @@ fun NavWrapper() {
         startDestination = Screen.HomeScreen.route
     ) {
         composable(route = Screen.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(
+                navController = navController,
+                isSendEnabled = true,
+                onTextChanged = { },
+                onSend = { }
+            )
         }
 
         composable(route = Screen.PartnerScreen.route) {
