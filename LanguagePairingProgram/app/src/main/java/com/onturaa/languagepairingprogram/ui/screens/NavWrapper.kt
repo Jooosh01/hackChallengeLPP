@@ -17,8 +17,8 @@ fun NavWrapper() {
             HomeScreen()
         }
 
-        composable(route = Screen.FormScreen.route) {
-            FormScreen()
+        composable(route = Screen.PartnerScreen.route) {
+            PartnerScreen()
         }
 
         composable(route = Screen.ChatScreen.route) {
