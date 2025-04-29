@@ -9,4 +9,7 @@ sealed class Screen(val route: String) {
 
     @Serializable
     data object FormScreen : Screen("form")
+
+    @Serializable
+    data object ChatScreen :Screen("chat")
 }
