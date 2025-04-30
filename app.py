@@ -1,20 +1,25 @@
 from flask import Flask, Blueprint, request, render_template, session, redirect
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 import json
 from db import db, User, Language, Match, Chatroom, Message
 from auth import generate_token
 from werkzeug.security import check_password_hash , generate_password_hash
 from flask_socketio import join_room, leave_room, emit, SocketIO
 from string import ascii_uppercase
-import random
+import os 
+
 
 app = Flask(__name__)
 db_filename = "lang.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///%s" % db_filename
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///lang.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "default_jwt_secret")
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 db.init_app(app)
+jwt = JWTManager(app)
+
 with app.app_context():
     db.drop_all()
     db.create_all()
@@ -57,16 +62,16 @@ def serialize_match(match):
 @app.route('/login/', methods=['POST'])
 def login():
     auth_data = json.loads(request.data)
-    
+
     if not auth_data or not auth_data.get('netID') or not auth_data.get('password'):
-        return failure_response({'message': 'Could not verify'},401)
+        return failure_response("Missing login credentials", 401)
+
     user = User.query.filter_by(netID=auth_data['netID']).first()
-    if not user:
-        return failure_response({'message': 'User not found'}, 404)
-    if check_password_hash(user.password_hash, auth_data['password']):
-        token = generate_token(user.id)
-        return success_response({'token': token},200)
-    return failure_response({'message': 'Wrong password'},401)
+    if not user or not check_password_hash(user.password_hash, auth_data['password']):
+        return failure_response("Invalid credentials", 401)
+
+    token = create_access_token(identity=user.id)
+    return success_response({'token': token, 'user': serialize_user(user)}, 200)
 
 @app.route('/api/languages/', methods=['GET'])
 def get_languages():
@@ -85,7 +90,7 @@ def create_user():
         user = User(
             netID=data['netID'],
             name=data['name'],
-            password_hash=generate_password_hash(data['password'], method='pbkdf2:sha256'),#(I have to fix this)
+            password_hash=generate_password_hash(data['password'], method='pbkdf2:sha256'),
             level=data['level'],
             language_id=data['language_id'],
             custom_description=data.get('description', '')
@@ -97,6 +102,7 @@ def create_user():
         return failure_response(str(e), 500)
 
 @app.route('/api/matches/', methods=['POST'])
+@jwt_required()
 def create_match():
     try:
         data = json.loads(request.data)
@@ -115,6 +121,7 @@ def create_match():
         return failure_response(str(e), 500)
     
 @app.route('/api/matches/<int:match_id>/accept/', methods=['POST'])
+@jwt_required()
 def accept_match(match_id):
     match = Match.query.get(match_id)
     if not match:
@@ -127,6 +134,7 @@ def accept_match(match_id):
     return success_response(serialize_match(match))
 
 @app.route('/api/users/<int:user_id>/', methods=['DELETE'])
+@jwt_required()
 def delete_user(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -141,6 +149,7 @@ def delete_user(user_id):
     return success_response({"deleted": True})
 
 @app.route('/api/users/<int:user_id>/match_status/', methods=['PUT'])
+@jwt_required()
 def update_match_status(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -191,6 +200,7 @@ def auto_match():
         return failure_response(str(e), 500)
 
 @app.route('/api/users/<int:user_id>/', methods=['GET'])
+@jwt_required()
 def get_user(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -198,6 +208,7 @@ def get_user(user_id):
     return success_response(serialize_user(user))
 
 @app.route('/api/users/', methods=['GET'])
+@jwt_required()
 def get_all_users():
     users = User.query.all()
     return success_response({
