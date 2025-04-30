@@ -39,8 +39,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSend() {
-        val question = _uiStateFlow.value.userInput
-//        userRepository.sendQuestion(question)
+//        userRepository.sendQuestion(input)
+        val input = _uiStateFlow.value.userInput
+        val updatedState = when (_uiStateFlow.value.steps) {
+            Step.Name -> _uiStateFlow.value.copy(name = input)
+            Step.NetID -> _uiStateFlow.value.copy(netID = input)
+            Step.Year -> _uiStateFlow.value.copy(year = input)
+            Step.Language -> _uiStateFlow.value.copy(language = input)
+            Step.Level -> _uiStateFlow.value.copy(level = input)
+            else -> _uiStateFlow.value
+        }
         _uiStateFlow.value = _uiStateFlow.value.copy(userInput = "")
     }
 

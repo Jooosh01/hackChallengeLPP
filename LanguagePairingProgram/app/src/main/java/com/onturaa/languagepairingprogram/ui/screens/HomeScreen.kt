@@ -180,11 +180,16 @@ fun HomeScreen(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
-                    BasicTextField(
-                        value = "name",
+                    TextField(
+                        value = uiState.userInput,
+                        placeholder = {
+                            Text("Walker White")
+                        },
                         onValueChange = {
                             onTextChanged(userInput)
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
                     )
                 }
 
@@ -239,11 +244,16 @@ fun HomeScreen(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
-                    BasicTextField(
-                        value = "netID",
+                    TextField(
+                        value = uiState.userInput,
+                        placeholder = {
+                            Text("xyz45")
+                        },
                         onValueChange = {
                             onTextChanged(userInput)
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
                     )
                 }
 
@@ -298,11 +308,16 @@ fun HomeScreen(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
-                    BasicTextField(
-                        value = "year",
+                    TextField(
+                        value = uiState.userInput,
+                        placeholder = {
+                            Text("2026")
+                        },
                         onValueChange = {
                             onTextChanged(userInput)
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
                     )
                 }
 
@@ -357,11 +372,16 @@ fun HomeScreen(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
-                    BasicTextField(
-                        value = "language",
+                    TextField(
+                        value = uiState.userInput,
+                        placeholder = {
+                            Text("Mandarin")
+                        },
                         onValueChange = {
                             onTextChanged(userInput)
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
                     )
                 }
 
@@ -416,11 +436,16 @@ fun HomeScreen(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
-                    BasicTextField(
-                        value = "level",
+                    TextField(
+                        value = uiState.userInput,
+                        placeholder = {
+                            Text("Beginner")
+                        },
                         onValueChange = {
                             onTextChanged(userInput)
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
                     )
                 }
 
@@ -490,7 +515,7 @@ private fun Form(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            BasicTextField(
+            TextField(
                 value = userInput,
                 onValueChange = { newText ->
                     viewModel.onTextChanged(newText)
