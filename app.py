@@ -70,7 +70,7 @@ def login():
     if not user or not check_password_hash(user.password_hash, auth_data['password']):
         return failure_response("Invalid credentials", 401)
 
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity= str(user.id))
     return success_response({'token': token, 'user': serialize_user(user)}, 200)
 
 @app.route('/api/languages/', methods=['GET'])
@@ -226,6 +226,7 @@ def init_languages():
 
 ## Chatroom and Message APIs
 @app.route('/api/chatroom/', methods=["POST"])
+@jwt_required()
 def create_chatroom():
     try:
         data = json.loads(request.data)
@@ -245,6 +246,7 @@ def create_chatroom():
         return failure_response(str(e), 500)
     
 @app.route('/api/chatroom/<int:chatroom_id>/', methods=["PUT"])
+@jwt_required()
 def close_chatroom(chatroom_id):
     chatroom = Chatroom.query.get(chatroom_id)
     if not chatroom:
@@ -256,6 +258,7 @@ def close_chatroom(chatroom_id):
     return success_response(chatroom.serialize())
 
 @app.route('/api/chatroom/<int:chatroom_id>/messages/', methods=["POST"])
+@jwt_required()
 def send_message(chatroom_id):
     try:
         data = json.loads(request.data)
@@ -269,6 +272,7 @@ def send_message(chatroom_id):
         return failure_response(str(e), 500)
     
 @app.route('/api/chatroom/<int:chatroom_id>/messages/', methods=["GET"])
+@jwt_required()
 def get_message_history(chatroom_id):
     chatroom = Chatroom.query.get(chatroom_id)
     if not chatroom:
