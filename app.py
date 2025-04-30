@@ -213,6 +213,7 @@ def init_languages():
     db.session.commit()
     return success_response("Languages initialized")
 
+## Chatroom and Message APIs
 @app.route('/api/chatroom/', methods=["POST"])
 def create_chatroom():
     try:
@@ -238,7 +239,7 @@ def close_chatroom(chatroom_id):
     if not chatroom:
         return failure_response("Chatroom not found", 404)
     
-    chatroom.active = False;
+    chatroom.active = False
     
     db.session.commit()
     return success_response(chatroom.serialize())
