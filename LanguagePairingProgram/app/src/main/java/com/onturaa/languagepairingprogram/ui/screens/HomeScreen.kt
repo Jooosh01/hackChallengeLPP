@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -28,18 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.onturaa.languagepairingprogram.ui.components.NavBar
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
-import com.onturaa.languagepairingprogram.ui.theme.LEPDarkBlue
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
-import com.onturaa.languagepairingprogram.ui.theme.LEPOrange
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 import com.onturaa.languagepairingprogram.viewmodel.HomeViewModel
-import org.intellij.lang.annotations.JdkConstants
 
 @Composable
 fun HomeScreen(
@@ -69,31 +65,31 @@ fun HomeScreen(
 
             HomeViewModel.Step.Name -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, "Walker White"
+                    viewModel, isSendEnabled, HomeViewModel.Step.Name.toString()
                 )
             }
 
             HomeViewModel.Step.NetID -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, "ww123"
+                    viewModel, isSendEnabled, HomeViewModel.Step.NetID.toString()
                 )
             }
 
             HomeViewModel.Step.Year -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, "2026"
+                    viewModel, isSendEnabled, HomeViewModel.Step.Year.toString()
                 )
             }
 
             HomeViewModel.Step.Language -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, "C++"
+                    viewModel, isSendEnabled, HomeViewModel.Step.Language.toString()
                 )
             }
 
             HomeViewModel.Step.Level -> {
                 EndSubScreen(
-                    navController, viewModel, isSendEnabled, "Native Speaker"
+                    navController, viewModel, isSendEnabled, HomeViewModel.Step.Level.toString()
                 )
             }
         }
@@ -360,9 +356,18 @@ private fun EndSubScreen(
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    TextSubScreen(
-        viewModel(),
-        true,
-        "text here"
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LEPBeige)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        TextSubScreen(
+            viewModel(),
+            true,
+            "text here"
+        )
+    }
 }

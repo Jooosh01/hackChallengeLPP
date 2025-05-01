@@ -1,20 +1,28 @@
 package com.onturaa.languagepairingprogram.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.content.MediaType.Companion.Text
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.onturaa.languagepairingprogram.model.PartnerRepository
+import com.onturaa.languagepairingprogram.ui.components.NavBar
 import com.onturaa.languagepairingprogram.ui.components.PartnerCard
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
@@ -31,28 +39,41 @@ fun PartnerScreen(
         PartnerRepository.Partner("Josh", "jaw542", 2026, fakeDict),
         PartnerRepository.Partner("Daria", "dib2", 2027, fakeDict)
     )
-    Column {
-        Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
-        LazyColumn {
-            items(fakeList) { item ->
-                PartnerCard(item, PartnerRepository.Languages.Japanese)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LEPBeige)
+            .padding(top = 52.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column {
+            Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
+            LazyColumn {
+                items(fakeList) { item ->
+                    PartnerCard(item, PartnerRepository.Languages.Japanese)
+                }
             }
         }
-    }
-    Button(
-        onClick = {
-            navController.navigate(Screen.ChatScreen.route)
-        },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = LEPPurple
-        ),
-    ) {
-        Text(
-            text = "Chat",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = LEPBeige
-        )
+        Column {
+            Button(
+                onClick = {
+                    navController.navigate(Screen.ChatScreen.route)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LEPPurple
+                ),
+            ) {
+                Text(
+                    text = "Chat",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = LEPBeige
+                )
+            }
+            NavBar(navController)
+        }
     }
 }
 
