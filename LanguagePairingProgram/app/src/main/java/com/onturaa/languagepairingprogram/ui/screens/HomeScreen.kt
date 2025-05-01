@@ -46,9 +46,6 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = viewModel(),
     isSendEnabled: Boolean,
-    onTextChanged: (String) -> Unit,
-    onSend: () -> Unit,
-    userInput: String = ""
 ) {
     val uiState by viewModel.uiStateFlow.collectAsState()
     val states = uiState.steps
@@ -63,467 +60,121 @@ fun HomeScreen(
     ) {
         when (states) {
             HomeViewModel.Step.Welcome -> {
-                Text(
-                    text = "WELCOME",
-                    fontSize = 64.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LEPGreen
-                )
-
-                Spacer(Modifier.height(28.dp))
-
-                Button(
-                    onClick = {
-                        viewModel.onNext()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LEPPurple
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 4.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "START",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "PlayArrow",
-                            tint = LEPBeige
-                        )
-                    }
-                }
+                WelcomeSubScreen(viewModel)
             }
 
             HomeViewModel.Step.LEP -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(LEPBeige)
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = " ",
-                        fontSize = 30.sp,
-                        color = Color.DarkGray,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 36.sp
-                    )
-
-                    Spacer(Modifier.height(14.dp))
-
-                    Text(
-                        text = "Fill out the partner selection form to get started!",
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 44.sp
-                    )
-
-                    Spacer(Modifier.height(28.dp))
-
-                    Row {
-                        Button(
-                            onClick = {
-                                viewModel.onBack()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LEPPurple
-                            )
-                        ) {
-                            Text(
-                                text = "BACK",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = LEPBeige
-                            )
-                        }
-
-                        Spacer(Modifier.width(28.dp))
-
-                        Button(
-                            onClick = {
-                                viewModel.onNext()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LEPPurple
-                            )
-                        ) {
-                            Text(
-                                text = "NEXT",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = LEPBeige
-                            )
-                        }
-                    }
-                }
+                LEPSubScreen(viewModel)
             }
 
             HomeViewModel.Step.Name -> {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    TextField(
-                        value = uiState.userInput,
-                        placeholder = {
-                            Text("Walker White")
-                        },
-                        onValueChange = {
-                            onTextChanged(userInput)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Row {
-                    Button(
-                        onClick = {
-                            viewModel.onBack()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        )
-                    ) {
-                        Text(
-                            text = "BACK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-
-                    Spacer(Modifier.width(28.dp))
-
-                    Button(
-                        onClick = {
-                            onSend()
-                            viewModel.onNext()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        ),
-                        enabled = isSendEnabled
-                    ) {
-                        Text(
-                            text = "NEXT",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-                }
+                TextSubScreen(
+                    viewModel, isSendEnabled, "Walker White"
+                )
             }
 
             HomeViewModel.Step.NetID -> {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    TextField(
-                        value = uiState.userInput,
-                        placeholder = {
-                            Text("xyz45")
-                        },
-                        onValueChange = {
-                            onTextChanged(userInput)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Row {
-                    Button(
-                        onClick = {
-                            viewModel.onBack()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        )
-                    ) {
-                        Text(
-                            text = "BACK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-
-                    Spacer(Modifier.width(28.dp))
-
-                    Button(
-                        onClick = {
-                            onSend()
-                            viewModel.onNext()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        ),
-                        enabled = isSendEnabled
-                    ) {
-                        Text(
-                            text = "NEXT",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-                }
+                TextSubScreen(
+                    viewModel, isSendEnabled, "ww123"
+                )
             }
 
             HomeViewModel.Step.Year -> {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    TextField(
-                        value = uiState.userInput,
-                        placeholder = {
-                            Text("2026")
-                        },
-                        onValueChange = {
-                            onTextChanged(userInput)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Row {
-                    Button(
-                        onClick = {
-                            viewModel.onBack()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        )
-                    ) {
-                        Text(
-                            text = "BACK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-
-                    Spacer(Modifier.width(28.dp))
-
-                    Button(
-                        onClick = {
-                            onSend()
-                            viewModel.onNext()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        ),
-                        enabled = isSendEnabled
-                    ) {
-                        Text(
-                            text = "NEXT",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-                }
+                TextSubScreen(
+                    viewModel, isSendEnabled, "2026"
+                )
             }
 
             HomeViewModel.Step.Language -> {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    TextField(
-                        value = uiState.userInput,
-                        placeholder = {
-                            Text("Mandarin")
-                        },
-                        onValueChange = {
-                            onTextChanged(userInput)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Row {
-                    Button(
-                        onClick = {
-                            viewModel.onBack()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        )
-                    ) {
-                        Text(
-                            text = "BACK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-
-                    Spacer(Modifier.width(28.dp))
-
-                    Button(
-                        onClick = {
-                            onSend()
-                            viewModel.onNext()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        ),
-                        enabled = isSendEnabled
-                    ) {
-                        Text(
-                            text = "NEXT",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-                }
+                TextSubScreen(
+                    viewModel, isSendEnabled, "C++"
+                )
             }
 
             HomeViewModel.Step.Level -> {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    TextField(
-                        value = uiState.userInput,
-                        placeholder = {
-                            Text("Beginner")
-                        },
-                        onValueChange = {
-                            onTextChanged(userInput)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Row {
-                    Button(
-                        onClick = {
-                            viewModel.onBack()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        )
-                    ) {
-                        Text(
-                            text = "BACK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-
-                    Spacer(Modifier.width(28.dp))
-
-                    Button(
-                        onClick = {
-                            onSend()
-                            navController.navigate(Screen.PartnerScreen.route)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LEPPurple
-                        ),
-                        enabled = isSendEnabled
-                    ) {
-                        Text(
-                            text = "SUBMIT",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LEPBeige
-                        )
-                    }
-                }
+                EndSubScreen(
+                    navController, viewModel, isSendEnabled, "Native Speaker"
+                )
             }
         }
     }
 }
 
 @Composable
-private fun Form(
-    viewModel: HomeViewModel = viewModel(),
-    userInput: String = "Walker White"
+private fun WelcomeSubScreen(
+    viewModel: HomeViewModel = viewModel()
+) {
+    Text(
+        text = "WELCOME",
+        fontSize = 64.sp,
+        fontWeight = FontWeight.Bold,
+        color = LEPGreen
+    )
+
+    Spacer(Modifier.height(28.dp))
+
+    Button(
+        onClick = {
+            viewModel.onNext()
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LEPPurple
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 4.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "START",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = "PlayArrow",
+                tint = LEPBeige
+            )
+        }
+    }
+}
+
+@Composable
+private fun LEPSubScreen(
+    viewModel: HomeViewModel = viewModel()
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(LEPBeige)
-            .padding(top = 52.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    Color.White,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            TextField(
-                value = userInput,
-                onValueChange = { newText ->
-                    viewModel.onTextChanged(newText)
-                }
-            )
-        }
+        Text(
+            text = " ",
+            fontSize = 30.sp,
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center,
+            lineHeight = 36.sp
+        )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(Modifier.height(14.dp))
+
+        Text(
+            text = "Fill out the partner selection form to get started!",
+            fontSize = 36.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center,
+            lineHeight = 44.sp
+        )
+
+        Spacer(Modifier.height(28.dp))
 
         Row {
             Button(
@@ -550,10 +201,10 @@ private fun Form(
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = LEPPurple
-                ),
+                )
             ) {
                 Text(
-                    text = "SUBMIT",
+                    text = "NEXT",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = LEPBeige
@@ -563,8 +214,155 @@ private fun Form(
     }
 }
 
+@Composable
+private fun TextSubScreen(
+    viewModel: HomeViewModel = viewModel(),
+    isSendEnabled: Boolean,
+    placeholder: String = ""
+) {
+    val uiState by viewModel.uiStateFlow.collectAsState()
+
+    Box(
+        modifier = Modifier
+            .background(
+                Color.White,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        TextField(
+            value = uiState.userInput,
+            placeholder = {
+                Text(placeholder)
+            },
+            onValueChange = {
+                viewModel.onTextChanged(it)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+
+    Spacer(modifier = Modifier.height(28.dp))
+
+    Row {
+        Button(
+            onClick = {
+                viewModel.onBack()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            )
+        ) {
+            Text(
+                text = "BACK",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+
+        Spacer(Modifier.width(28.dp))
+
+        Button(
+            onClick = {
+                viewModel.onSend()
+                viewModel.onNext()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            ),
+            enabled = isSendEnabled
+        ) {
+            Text(
+                text = "NEXT",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+    }
+}
+
+@Composable
+private fun EndSubScreen(
+    navController: NavController,
+    viewModel: HomeViewModel = viewModel(),
+    isSendEnabled: Boolean,
+    placeholder: String = ""
+) {
+    val uiState by viewModel.uiStateFlow.collectAsState()
+
+    Box(
+        modifier = Modifier
+            .background(
+                Color.White,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        TextField(
+            value = uiState.userInput,
+            placeholder = {
+                Text(placeholder)
+            },
+            onValueChange = {
+                viewModel.onTextChanged(it)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+
+    Spacer(modifier = Modifier.height(28.dp))
+
+    Row {
+        Button(
+            onClick = {
+                viewModel.onBack()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            )
+        ) {
+            Text(
+                text = "BACK",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+
+        Spacer(Modifier.width(28.dp))
+
+        Button(
+            onClick = {
+                viewModel.onSend()
+                navController.navigate(Screen.PartnerScreen.route)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            ),
+            enabled = isSendEnabled
+        ) {
+            Text(
+                text = "NEXT",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    Form()
+    TextSubScreen(
+        viewModel(),
+        true,
+        "text here"
+    )
 }

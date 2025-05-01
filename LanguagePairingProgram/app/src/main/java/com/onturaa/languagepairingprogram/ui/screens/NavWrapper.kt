@@ -17,8 +17,6 @@ fun NavWrapper() {
             HomeScreen(
                 navController = navController,
                 isSendEnabled = true,
-                onTextChanged = { },
-                onSend = { }
             )
         }
 
