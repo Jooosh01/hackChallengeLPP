@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.onturaa.languagepairingprogram.ui.components.HomeButtons
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
@@ -170,41 +171,7 @@ private fun LEPSubScreen(
 
         Spacer(Modifier.height(28.dp))
 
-        Row {
-            Button(
-                onClick = {
-                    viewModel.onBack()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LEPPurple
-                )
-            ) {
-                Text(
-                    text = "BACK",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LEPBeige
-                )
-            }
-
-            Spacer(Modifier.width(28.dp))
-
-            Button(
-                onClick = {
-                    viewModel.onNext()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LEPPurple
-                )
-            ) {
-                Text(
-                    text = "NEXT",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LEPBeige
-                )
-            }
-        }
+        HomeButtons(viewModel, null)
     }
 }
 
@@ -240,43 +207,7 @@ private fun TextSubScreen(
 
     Spacer(modifier = Modifier.height(28.dp))
 
-    Row {
-        Button(
-            onClick = {
-                viewModel.onBack()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LEPPurple
-            )
-        ) {
-            Text(
-                text = "BACK",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = LEPBeige
-            )
-        }
-
-        Spacer(Modifier.width(28.dp))
-
-        Button(
-            onClick = {
-                viewModel.onSend()
-                viewModel.onNext()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LEPPurple
-            ),
-            enabled = isSendEnabled
-        ) {
-            Text(
-                text = "NEXT",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = LEPBeige
-            )
-        }
-    }
+    HomeButtons(viewModel, isSendEnabled)
 }
 
 @Composable
@@ -342,7 +273,7 @@ private fun EndSubScreen(
             enabled = isSendEnabled
         ) {
             Text(
-                text = "NEXT",
+                text = "SUBMIT",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = LEPBeige
