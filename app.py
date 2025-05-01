@@ -2,10 +2,8 @@ from flask import Flask, Blueprint, request, render_template, session, redirect
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 import json
 from db import db, User, Language, Match, Chatroom, Message
-from auth import generate_token
 from werkzeug.security import check_password_hash , generate_password_hash
-from flask_socketio import join_room, leave_room, emit, SocketIO
-from string import ascii_uppercase
+from flask_socketio import join_room, emit, SocketIO
 import os 
 
 
