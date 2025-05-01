@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,72 +32,82 @@ import com.onturaa.languagepairingprogram.ui.theme.LEPDarkBlue
 fun NavBar(
     navController: NavController
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(LEPBeige)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    Color.White,
-                    shape = RoundedCornerShape(8.dp)
-                )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Start Over",
-                tint = LEPDarkBlue,
-                modifier = Modifier
-                    .size(52.dp)
-                    .padding(4.dp)
-                    .clickable {
-                    navController.navigate(Screen.HomeScreen.route)
-                }
-            )
-        }
+    Column {
+        Spacer(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .background(Color.DarkGray)
+                .height(1.dp)
+        )
 
-        Box(
+        Row(
             modifier = Modifier
-                .background(
-                    Color.White,
-                    shape = RoundedCornerShape(8.dp)
-                )
+                .fillMaxWidth()
+                .background(LEPBeige)
+                .padding(start = 20.dp, end = 20.dp, top = 28.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Partner Matching",
-                tint = LEPDarkBlue,
+            Box(
                 modifier = Modifier
-                    .size(52.dp)
-                    .padding(4.dp)
-                    .clickable {
-                        navController.navigate(Screen.PartnerScreen.route)
-                    }
-            )
-        }
+                    .background(
+                        Color.White,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Start Over",
+                    tint = LEPDarkBlue,
+                    modifier = Modifier
+                        .size(52.dp)
+                        .padding(4.dp)
+                        .clickable {
+                            navController.navigate(Screen.HomeScreen.route)
+                        }
+                )
+            }
 
-        Box(
-            modifier = Modifier
-                .background(
-                    Color.White,
-                    shape = RoundedCornerShape(8.dp)
-                )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Chat",
-                tint = LEPDarkBlue,
+            Box(
                 modifier = Modifier
-                    .size(52.dp)
-                    .padding(4.dp)
-                    .clickable {
-                        navController.navigate(Screen.ChatScreen.route)
-                    }
-            )
+                    .background(
+                        Color.White,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Partner Matching",
+                    tint = LEPDarkBlue,
+                    modifier = Modifier
+                        .size(52.dp)
+                        .padding(4.dp)
+                        .clickable {
+                            navController.navigate(Screen.PartnerScreen.route)
+                        }
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        Color.White,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Chat",
+                    tint = LEPDarkBlue,
+                    modifier = Modifier
+                        .size(52.dp)
+                        .padding(4.dp)
+                        .clickable {
+                            navController.navigate(Screen.ChatScreen.route)
+                        }
+                )
+            }
         }
     }
 }

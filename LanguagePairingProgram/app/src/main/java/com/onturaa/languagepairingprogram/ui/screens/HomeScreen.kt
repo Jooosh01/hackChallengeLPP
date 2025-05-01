@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.onturaa.languagepairingprogram.ui.components.NavBar
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
@@ -164,7 +163,6 @@ private fun LEPSubScreen(
         Text(
             text = "Fill out the partner selection form to get started!",
             fontSize = 36.sp,
-            fontWeight = FontWeight.Bold,
             color = Color.DarkGray,
             textAlign = TextAlign.Center,
             lineHeight = 44.sp
