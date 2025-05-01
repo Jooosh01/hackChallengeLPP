@@ -27,7 +27,9 @@ fun NavWrapper() {
         }
 
         composable(route = Screen.ChatScreen.route) {
-            ChatScreen()
+            ChatScreen(
+                navController = navController
+            )
         }
     }
 }

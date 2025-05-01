@@ -45,8 +45,8 @@ fun PartnerScreen(
             .fillMaxSize()
             .background(LEPBeige)
             .padding(top = 52.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
             Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
@@ -56,24 +56,23 @@ fun PartnerScreen(
                 }
             }
         }
-        Column {
-            Button(
-                onClick = {
-                    navController.navigate(Screen.ChatScreen.route)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LEPPurple
-                ),
-            ) {
-                Text(
-                    text = "Chat",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LEPBeige
-                )
-            }
-            NavBar(navController)
+        Button(
+            onClick = {
+                navController.navigate(Screen.ChatScreen.route)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            ),
+        ) {
+            Text(
+                text = "Chat",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
         }
+
+        NavBar(navController)
     }
 }
 
