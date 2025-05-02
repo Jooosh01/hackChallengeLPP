@@ -25,15 +25,20 @@ import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.ui.components.NavBar
 import com.onturaa.languagepairingprogram.ui.components.PartnerCard
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
+import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 
 @Composable
 fun PartnerScreen(
-    navController: NavController
+    navController: NavController,
+    lang: String
 ) {
     val fakeList: List<PartnerRepository.Partner> = listOf(
         PartnerRepository.Partner("Josh", "jaw542", 2026, "brp", 1),
-        PartnerRepository.Partner("Daria", "dib2", 2027, "linguistics", 3)
+        PartnerRepository.Partner("Daria", "dib2", 2027, "linguistics", 3),
+        PartnerRepository.Partner("John", "dib2", 2028, "linguistics", 4),
+        PartnerRepository.Partner("Lilian", "dib2", 2028, "linguistics", 0)
+
     )
 
     Column(
@@ -74,10 +79,13 @@ fun PartnerScreen(
 
 @Composable
 private fun PartnerLayout(
+    lang: String
 ) {
     val fakeList: List<PartnerRepository.Partner> = listOf(
-        PartnerRepository.Partner("Josh", "jaw542", 2026, "Japanese", 5),
-        PartnerRepository.Partner("Daria", "dib2", 2027, "Fortnite", 2)
+        PartnerRepository.Partner("Josh", "jaw542", 2026, "Japanese", 1),
+        PartnerRepository.Partner("Daria", "dib2", 2027, "Fortnite", 5),
+        PartnerRepository.Partner("John", "dib2", 2028, "linguistics", 4),
+        PartnerRepository.Partner("Lilian", "dib2", 2028, "linguistics", 0)
     )
 
     Column(
@@ -89,9 +97,12 @@ private fun PartnerLayout(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
+            Text("Your Fellow $lang Learners", fontSize = 50.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPGreen, textAlign = TextAlign.Center)
             LazyColumn {
-                items(fakeList) { item ->
+                val sorted = fakeList.sortedByDescending { it.selfScore }
+                items(sorted) { item ->
                     PartnerCard(item, item.targLang )
                 }
             }
@@ -119,5 +130,5 @@ private fun PartnerLayout(
 @Preview
 @Composable
 fun PartnerScreenPreview() {
-    PartnerLayout()
+    PartnerLayout("Japanese")
 }

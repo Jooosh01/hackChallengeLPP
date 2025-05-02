@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
@@ -29,15 +31,16 @@ fun  ratingToString(sr: Int): String{
         3 -> "High Intermediate"
         4 -> "Advanced"
         5-> "Native"
-        else -> "Josh Messed this function up"
+        else -> "DONT PASS IN LESS THAN 1 or GREATER THAN 5"
     }
 }
 
 @Composable
 fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
     Card (modifier = Modifier
-        .padding(15.dp)
-        .fillMaxWidth(),
+        .padding(20.dp)
+        .fillMaxWidth()
+        .height(125.dp),
         colors = CardColors(
             LEPPurple,
             contentColor = Color.Black,
@@ -45,17 +48,22 @@ fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
             disabledContentColor = LEPPurple
         )
     ){
-        Row (horizontalArrangement = Arrangement.SpaceBetween){
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween){
             Column(modifier = Modifier
-                .padding(15.dp)) {
-                Text(text = partner.n,  fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black)
-                Text(partner.netId)
+                .padding(20.dp)
+                .fillMaxHeight(), verticalArrangement = Arrangement.Top) {
+                Text(text = partner.n,  fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold)
+                Text(partner.netId, fontSize = 15.sp)
+                Text(partner.year.toString())
             }
             Column(modifier = Modifier
-                .padding(15.dp), horizontalAlignment = Alignment.End) {
-                Text(partner.year.toString())
+                .padding(20.dp)
+                .fillMaxHeight(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Bottom) {
+
                 Text(ratingToString(partner.selfScore))
             }
         }
