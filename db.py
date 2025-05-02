@@ -10,9 +10,10 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable = False)
     level = db.Column(db.String(50), nullable = False)
     match_status = db.Column(db.Boolean, default = False)
-    custom_description = db.Column(db.Text)
+    description = db.Column(db.Text)
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
     profile_picture_url = db.Column(db.String(256))
+    points = db.Column(db.Integer, default = 0)
 
     language = db.relationship('Language', back_populates = 'users') #
     match_initiated = db.relationship('Match', foreign_keys = 'Match.user1_id', back_populates = 'user1')
@@ -20,13 +21,31 @@ class User(db.Model):
     chatroom_user_1 = db.relationship('Chatroom', foreign_keys = 'Chatroom.user1_id', back_populates = 'user1')
     chatroom_user_2 = db.relationship('Chatroom', foreign_keys = 'Chatroom.user2_id', back_populates = 'user2')
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'netID': self.netID,
+            'name': self.name,
+            'level': self.level,
+            'match_status': self.match_status,
+            'description': self.description,
+            'language': self.language.serialize()
+        }
+
 class Language(db.Model):
     __tablename__ = 'language'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50), unique = True , nullable = False)
-    flag_icon_url = db.Column(db.String(200))
+    flag_url = db.Column(db.String(200))
 
-    users = db.relationship('User', back_populates = 'language') #
+    users = db.relationship('User', back_populates = 'language')
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'flag_url': self.flag_url
+        }
 
 class Match(db.Model):
     __tablename__ = 'matches'
@@ -38,6 +57,15 @@ class Match(db.Model):
 
     user1 = db.relationship('User', foreign_keys=[user1_id], back_populates='match_initiated')
     user2 = db.relationship('User', foreign_keys=[user2_id], back_populates='match_received')
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user1': self.user.serialize(),
+            'user2': self.user2.serialize(),
+            'status': self.status,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None
+        }
 
 class Chatroom(db.Model):
     __tablename__ = 'chatroom'
@@ -78,3 +106,43 @@ class Message(db.Model):
             'content': self.content,
             'timestamp': self.timestamp.isoformat() if self.timestamp else None,
         }
+    
+
+def add_langauges():
+    initial_languages = [
+        { 'name': 'Arabic', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/arabic.png' },
+        { 'name': 'Bengali', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/bengali.png' },
+        { 'name': 'English', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/english.png' },
+        { 'name': 'French', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/french.png' },
+        { 'name': 'German', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/german.png' },
+        { 'name': 'Hindi', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/hindi.png' },
+        { 'name': 'Indonesian', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/indonesian.png' },
+        { 'name': 'Italian', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/italian.png' },
+        { 'name': 'Jamaican Patois', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/jamaican-patois.png' },
+        { 'name': 'Japanese', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/japanese.png' },
+        { 'name': 'Korean', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/korean.png' },
+        { 'name': 'Mandarin', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/mandarin.png' },
+        { 'name': 'Polish', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/polish.png' },
+        { 'name': 'Portuguese', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/portuguese.png' },
+        { 'name': 'Russian', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/russian.png' },
+        { 'name': 'Spanish', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/spanish.png' },
+        { 'name': 'Swahili', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/swahili.png' },
+        { 'name': 'Tagalog', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/tagalog.png' },
+        { 'name': 'Taiwanese', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/taiwanese.png' },
+        { 'name': 'Thai', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/thai.png' },
+        { 'name': 'Turkish', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/turkish.png' },
+        { 'name': 'Twi', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/twi.png' },
+        { 'name': 'Urdu', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/urdu.png' },
+        { 'name': 'Vietnamese', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/vietnamese.png' },
+        { 'name': 'Yoruba', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/yoruba.png' }
+    ]
+
+    for lang in initial_languages:
+        language = Language(
+            name=lang['name'],
+            flag_url=lang['flag_url'],
+        )
+        db.session.add(language)
+
+    db.session.commit()
+
