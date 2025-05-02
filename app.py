@@ -238,38 +238,36 @@ def update_match_status(user_id):
 
 @app.route('/api/matches/auto_match/', methods=['POST'])
 def auto_match():
-    try:
-        data = json.loads(request.data)
-        user_id = data.get('user_id')
-        if not user_id:
-            return failure_response("Missing user ID")
+    data = json.loads(request.data)
+    user_id = data.get('user_id')
+    if not user_id:
+        return failure_response("Missing user ID")
 
-        user = User.query.get(user_id)
-        if not user:
-            return failure_response("User not found", 404)
+    user = User.query.get(user_id)
+    if not user:
+        return failure_response("User not found", 404)
 
-        if user.match_status:
-            return failure_response("User is already matched")
+    if user.match_status:
+        return failure_response("User is already matched")
 
-        potential_match = User.query.filter(
-            User.id != user_id,
-            User.language_id == user.language_id,
-            User.match_status == False
-        ).first()
+    potential_match = User.query.filter(
+        User.id != user_id,
+        User.language_id == user.language_id,
+        User.match_status == False
+    ).first()
 
-        if not potential_match:
-            return failure_response("No suitable match found")
+    if not potential_match:
+        return failure_response("No suitable match found")
 
-            # Use the create_match function to create the match
-        match_data = {
-                'user1_id': user.id,
-                'user2_id': potential_match.id
-            }
-        request_data_backup = request.data  # Backup the original request data
-        request.data = json.dumps(match_data)  # Temporarily replace request data
-        response = create_match()  # Call the create_match function
-        request.data = request_data_backup  # Restore the original request data
-        return response
+    match_data = {
+            'user1_id': user.id,
+            'user2_id': potential_match.id
+        }
+    request_data_backup = request.data  
+    request.data = json.dumps(match_data)  
+    response = create_match()  
+    request.data = request_data_backup  
+    return response
 
 
 # ---------------------------------------------------- CHATROOM METHODS ----------------------------------------------------
