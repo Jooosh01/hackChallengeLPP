@@ -55,16 +55,15 @@ fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
             Column(modifier = Modifier
                 .padding(20.dp)
                 .fillMaxHeight(), verticalArrangement = Arrangement.Top) {
-                Text(text = partner.n,  fontSize = 30.sp,
+                Text(text = partner.name,  fontSize = 30.sp,
                     fontWeight = FontWeight.Bold)
                 Text(partner.netId, fontSize = 15.sp)
-                Text(partner.year.toString())
             }
             Column(modifier = Modifier
                 .padding(20.dp)
                 .fillMaxHeight(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Bottom) {
 
-                Text(ratingToString(partner.selfScore))
+                Text(partner.level)
             }
         }
     }
@@ -72,7 +71,10 @@ fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
 @Composable
 @Preview
 fun PartnerCardPreview(){
-    val fakePartner = PartnerRepository.Partner("Josh", "jaw542",2026, "Japanese", 5)
+    val fakePartner = PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
+        3,
+        "Japanse",
+    "val flag_url: String"))
     PartnerCard(fakePartner, "Japanese")
 }
 
