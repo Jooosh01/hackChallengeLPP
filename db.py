@@ -15,7 +15,7 @@ class User(db.Model):
     profile_picture_url = db.Column(db.String(256))
     points = db.Column(db.Integer, default = 0)
 
-    language = db.relationship('Language', back_populates = 'users') #
+    language = db.relationship('Language', back_populates = 'users') 
     match_initiated = db.relationship('Match', foreign_keys = 'Match.user1_id', back_populates = 'user1')
     match_received = db.relationship('Match', foreign_keys = 'Match.user2_id', back_populates = 'user2')
     chatroom_user_1 = db.relationship('Chatroom', foreign_keys = 'Chatroom.user1_id', back_populates = 'user1')
