@@ -178,10 +178,31 @@ def create_match():
         if not all(k in data for k in ['user1_id', 'user2_id']):
             return failure_response("Missing user IDs")
         
+        user1 = User.query.get(data['user1_id'])
+        user2 = User.query.get(data['user2_id'])
+
+        if not user1 or not user2:
+            return failure_response("One or both users not found", 404)
+
+        if user1.level == 1 and user2.level not in [2, 3]:
+            return failure_response("Mentee with level 1 can only be matched with a mentor with level 2 or 3", 400)
+        if user1.level == 2 and user2.level != 3:
+            return failure_response("Mentee with level 2 can only be matched with a mentor with level 3", 400)
+        if user1.level == 3 and user2.level not in [1, 2, 3]:
+            return failure_response("Mentor with level 3 can only mentor all levels or mentee with level 3", 400)
+
+
+        if user2.level == 1 and user1.level not in [2, 3]:
+            return failure_response("Mentee with level 1 can only be matched with a mentor with level 2 or 3", 400)
+        if user2.level == 2 and user1.level != 3:
+            return failure_response("Mentee with level 2 can only be matched with a mentor with level 3", 400)
+        if user2.level == 3 and user1.level not in [1, 2, 3]:
+            return failure_response("Mentor with level 3 can only mentor all levels or mentee with level 3", 400)
+
         match = Match(
-            user1_id=data['user1_id']
+            user1_id=data['user1_id'],
             user2_id=data['user2_id'],
-            status='pending'
+            status='pending',
         )
         db.session.add(match)
         db.session.commit()
@@ -234,24 +255,22 @@ def auto_match():
             User.id != user_id,
             User.language_id == user.language_id,
             User.match_status == False
-            ).first()
+        ).first()
 
         if not potential_match:
             return failure_response("No suitable match found")
 
-        match = Match(
-            user1_id=user.id,
-            user2_id=potential_match.id,
-            status='pending'
-        )
-        db.session.add(match)
-        db.session.commit()
-        update_match_status(user.id)
-        update_match_status(potential_match.id)
+            # Use the create_match function to create the match
+        match_data = {
+                'user1_id': user.id,
+                'user2_id': potential_match.id
+            }
+        request_data_backup = request.data  # Backup the original request data
+        request.data = json.dumps(match_data)  # Temporarily replace request data
+        response = create_match()  # Call the create_match function
+        request.data = request_data_backup  # Restore the original request data
+        return response
 
-        return success_response(match.serialize()), 201)
-    except Exception as e:
-        return failure_response(str(e), 500)
 
 # ---------------------------------------------------- CHATROOM METHODS ----------------------------------------------------
 
