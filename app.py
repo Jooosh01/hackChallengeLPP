@@ -25,6 +25,7 @@ jwt = JWTManager(app)
 with app.app_context():
     db.drop_all()
     db.create_all()
+    db.add_languages()
 
 def success_response(data, status=200):
     return json.dumps({'success': True, 'data': data}), status
@@ -32,35 +33,7 @@ def success_response(data, status=200):
 def failure_response(message, status=400):
     return json.dumps({'success': False, 'error': message}), status
 
-def serialize_user(user):
-    return {
-        'id': user.id,
-        'netID': user.netID,
-        'name': user.name,
-        'level': user.level,
-        'match_status': user.match_status,
-        'description': user.custom_description,
-        'language': serialize_language(user.language)
-    }
-
-def serialize_language(language):
-    if not language:
-        return None
-    return {
-        'id': language.id,
-        'name': language.name,
-        'flag_icon_url': language.flag_icon_url
-    }
-
-def serialize_match(match):
-    return {
-        'id': match.id,
-        'user1': serialize_user(match.user1),
-        'user2': serialize_user(match.user2),
-        'status': match.status,
-        'timestamp': match.timestamp.isoformat() if match.timestamp else None
-    }
-
+# ------------------------------------------------------ USER METHODS ------------------------------------------------------
 @app.route('/login/', methods=['POST'])
 def login():
     auth_data = json.loads(request.data)
@@ -73,14 +46,14 @@ def login():
         return failure_response("Invalid credentials", 401)
 
     token = create_access_token(identity= str(user.id))
-    return success_response({'token': token, 'user': serialize_user(user)}, 200)
+    return success_response({'token': token, 'user': user.serialize()}, 200)
 
 @app.route('/api/languages/', methods=['GET'])
 @jwt_required()
 def get_languages():
     languages = Language.query.all()
     return success_response({
-        'languages': [serialize_language(lang) for lang in languages]
+        'languages': [lang.serialize() for lang in languages]
     })
 
 @app.route('/api/users/', methods=['POST'])
@@ -96,46 +69,51 @@ def create_user():
             password_hash=generate_password_hash(data['password'], method='pbkdf2:sha256'),
             level=data['level'],
             language_id=data['language_id'],
-            custom_description=data.get('description', '')
+            description=data.get('description', '')
         )
         db.session.add(user)
         db.session.commit()
-        return success_response(serialize_user(user), 201)
+        return success_response(user.serialize(), 201)
     except Exception as e:
         return failure_response(str(e), 500)
-
-@app.route('/api/matches/', methods=['POST'])
+    
+@app.route('/api/users/<int:user_id>/', methods=['GET'])
 @jwt_required()
-def create_match():
+def get_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return failure_response("User not found", 404)
+    return success_response(user.serialize())
+
+@app.route('/api/users/', methods=['GET'])
+@jwt_required()
+def get_all_users():
+    users = User.query.all()
+    return success_response({
+        'users': [user.serialize() for user in users]
+    })
+    
+@app.route('/api/users/update/', methods=['PUT'])
+def update_user():
     try:
         data = json.loads(request.data)
-        if not all(k in data for k in ['user1_id', 'user2_id']):
-            return failure_response("Missing user IDs")
-        
-        match = Match(
-            user1_id=data['user1_id'],
-            user2_id=data['user2_id'],
-            status='pending'
-        )
-        db.session.add(match)
-        db.session.commit()
-        return success_response(serialize_match(match), 201)
+        netID = data['netID']
+        if not netID:
+            return failure_response("Missing required fields", 400)
+        user = User.query.filter_by(netID=netID).first()
+        if not user:
+            return failure_response("User not found", 404)
+        if 'name' in data:
+            user.name = data['name']
+        if 'level' in data:
+            user.level = data['level']
+        if 'language_id' in data:
+            user.language_id = data['language_id']
+        if 'description' in data:
+            user.description = data['description']
     except Exception as e:
         return failure_response(str(e), 500)
     
-@app.route('/api/matches/<int:match_id>/accept/', methods=['POST'])
-@jwt_required()
-def accept_match(match_id):
-    match = Match.query.get(match_id)
-    if not match:
-        return failure_response("Match not found", 404)
-    
-    match.status = 'accepted'
-    match.user1.match_status = True
-    match.user2.match_status = True
-    db.session.commit()
-    return success_response(serialize_match(match))
-
 @app.route('/api/users/<int:user_id>/', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
@@ -151,6 +129,100 @@ def delete_user(user_id):
     db.session.commit()
     return success_response({"deleted": True})
 
+# ----------------------------------------------------- MATCH METHODS -----------------------------------------------------
+
+@app.route('/api/users/<int:user_id>/matches/', methods=['GET'])
+@jwt_required()
+def get_matches(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return failure_response("User not found", 404)
+        language_id = user.language_id
+        users = User.query.filter_by(language_id).all()
+        return success_response({ 'users': [user.serialize() for user in users] })
+    except Exception as e:
+        return failure_response(str(e), 500)
+    
+@app.route('/api/users/match_info/', methods=['GET'])
+@jwt_required()
+def get_users_match_info():
+    users = User.query.all()
+    match_info = []
+
+    for user in users:
+        matches = Match.query.filter(
+            (Match.user1_id == user.id) | (Match.user2_id == user.id),
+                Match.status == 'accepted'
+        ).all()
+
+        matched_users = []
+        for match in matches:
+            if match.user1_id == user.id:
+                matched_users.append(match.user2.serialize())
+            elif match.user2_id == user.id:
+                matched_users.append(match.user1.serialize())
+
+        match_info.append({
+            'user': user.serialize(),
+            'matched_users': matched_users
+        })
+
+    return success_response(match_info)
+
+@app.route('/api/matches/', methods=['POST'])
+@jwt_required()
+def create_match():
+    try:
+        data = json.loads(request.data)
+        if not all(k in data for k in ['user1_id', 'user2_id']):
+            return failure_response("Missing user IDs")
+        
+        user1 = User.query.get(data['user1_id'])
+        user2 = User.query.get(data['user2_id'])
+
+        if not user1 or not user2:
+            return failure_response("One or both users not found", 404)
+
+        if user1.level == 1 and user2.level not in [2, 3]:
+            return failure_response("Mentee with level 1 can only be matched with a mentor with level 2 or 3", 400)
+        if user1.level == 2 and user2.level != 3:
+            return failure_response("Mentee with level 2 can only be matched with a mentor with level 3", 400)
+        if user1.level == 3 and user2.level not in [1, 2, 3]:
+            return failure_response("Mentor with level 3 can only mentor all levels or mentee with level 3", 400)
+
+
+        if user2.level == 1 and user1.level not in [2, 3]:
+            return failure_response("Mentee with level 1 can only be matched with a mentor with level 2 or 3", 400)
+        if user2.level == 2 and user1.level != 3:
+            return failure_response("Mentee with level 2 can only be matched with a mentor with level 3", 400)
+        if user2.level == 3 and user1.level not in [1, 2, 3]:
+            return failure_response("Mentor with level 3 can only mentor all levels or mentee with level 3", 400)
+
+        match = Match(
+            user1_id=data['user1_id'],
+            user2_id=data['user2_id'],
+            status='pending',
+        )
+        db.session.add(match)
+        db.session.commit()
+        return success_response(match.serialize(), 201)
+    except Exception as e:
+        return failure_response(str(e), 500)
+    
+@app.route('/api/matches/<int:match_id>/accept/', methods=['POST'])
+@jwt_required()
+def accept_match(match_id):
+    match = Match.query.get(match_id)
+    if not match:
+        return failure_response("Match not found", 404)
+    
+    match.status = 'accepted'
+    match.user1.match_status = True
+    match.user2.match_status = True
+    db.session.commit()
+    return success_response(match.serialize())
+
 @app.route('/api/users/<int:user_id>/match_status/', methods=['PUT'])
 @jwt_required()
 def update_match_status(user_id):
@@ -162,72 +234,44 @@ def update_match_status(user_id):
     new_status = data.get('match_status')  
     user.match_status = new_status
     db.session.commit()
-    return success_response(serialize_user(user))
+    return success_response(user.serialize())
 
 @app.route('/api/matches/auto_match/', methods=['POST'])
 def auto_match():
-    try:
-        data = json.loads(request.data)
-        user_id = data.get('user_id')
-        if not user_id:
-            return failure_response("Missing user ID")
+    data = json.loads(request.data)
+    user_id = data.get('user_id')
+    if not user_id:
+        return failure_response("Missing user ID")
 
-        user = User.query.get(user_id)
-        if not user:
-            return failure_response("User not found", 404)
-
-        if user.match_status:
-            return failure_response("User is already matched")
-
-        potential_match = User.query.filter(
-            User.id != user_id,
-            User.language_id == user.language_id,
-            User.match_status == False
-            ).first()
-
-        if not potential_match:
-            return failure_response("No suitable match found")
-
-        match = Match(
-            user1_id=user.id,
-            user2_id=potential_match.id,
-            status='pending'
-        )
-        db.session.add(match)
-        db.session.commit()
-        update_match_status(user.id)
-        update_match_status(potential_match.id)
-
-        return success_response(serialize_match(match), 201)
-    except Exception as e:
-        return failure_response(str(e), 500)
-
-@app.route('/api/users/<int:user_id>/', methods=['GET'])
-@jwt_required()
-def get_user(user_id):
     user = User.query.get(user_id)
     if not user:
         return failure_response("User not found", 404)
-    return success_response(serialize_user(user))
 
-@app.route('/api/users/', methods=['GET'])
-@jwt_required()
-def get_all_users():
-    users = User.query.all()
-    return success_response({
-        'users': [serialize_user(user) for user in users]
-    })
+    if user.match_status:
+        return failure_response("User is already matched")
 
-## just to test get_languages
-@app.route('/init/languages/', methods= ['GET'])
-def init_languages():
-    lang1 = Language(name="Spanish", flag_icon_url="https://expatnetwork.com/passport-visa-requirements-spain/spain-flag/")
-    lang2 = Language(name="French", flag_icon_url="https://en.wikipedia.org/wiki/Flag_of_France#/media/File:Flag_of_France.svg")
-    db.session.add_all([lang1, lang2])
-    db.session.commit()
-    return success_response("Languages initialized")
+    potential_match = User.query.filter(
+        User.id != user_id,
+        User.language_id == user.language_id,
+        User.match_status == False
+    ).first()
 
-## Chatroom and Message APIs
+    if not potential_match:
+        return failure_response("No suitable match found")
+
+    match_data = {
+            'user1_id': user.id,
+            'user2_id': potential_match.id
+        }
+    request_data_backup = request.data  
+    request.data = json.dumps(match_data)  
+    response = create_match()  
+    request.data = request_data_backup  
+    return response
+
+
+# ---------------------------------------------------- CHATROOM METHODS ----------------------------------------------------
+
 @app.route('/api/chatroom/', methods=["POST"])
 @jwt_required()
 def create_chatroom():
@@ -236,6 +280,14 @@ def create_chatroom():
         if not all(k in data for k in ['user1_id','user2_id']):
             return failure_response("Missing required fields")
         
+        match = Match.query.filter(
+            (Match.user1_id == data['user1.id']) | (Match.user2_id == data['user2.id']),
+                Match.status == 'accepted'
+        ).first()
+
+        if not match:
+            return failure_response("Users are not matched")
+
         chatroom = Chatroom(
             user1_id=data['user1_id'],
             user2_id=data['user2_id'],
@@ -287,31 +339,39 @@ def get_message_history(chatroom_id):
 
     return success_response(json.dumps(message_history))
 
-@app.route('/api/users/match_info/', methods=['GET'])
+@app.route('/api/chatroom/<int:chatroom_id>/rate/', methods=["POST"])
 @jwt_required()
-def get_users_match_info():
-    users = User.query.all()
-    match_info = []
+def give_points(chatroom_id):
+    try:
+        data = json.loads(request.data)
+        if not all(k in data for k in ['sender_id', 'receiver_id', 'points']):
+            return failure_response("Missing required fields")
+        
+        sender = User.query.get(data['sender_id'])
+        receiver = User.query.get(data['receiver_id'])
+        if not sender or not receiver:
+            return failure_response("User not found", 404)
+        
+        if sender.level not in ['advanced', 'native']:
+            return failure_response("Sender level not high enough to rate", 404)
+        
+        if data['sender_id'] not in [chatroom.user1_id, chatroom.user2_id] or data['receiver_id'] not in [chatroom.user1_id, chatroom.user2_id]:
+            return failure_response("Users not part of this chatroom", 403)
 
-    for user in users:
-        matches = Match.query.filter(
-            (Match.user1_id == user.id) | (Match.user2_id == user.id),
-                Match.status == 'accepted'
-        ).all()
+        if data['points'] <= 0 or data['points'] > 5:
+            return failure_response("Points must be between 1 and 5", 400)
 
-        matched_users = []
-        for match in matches:
-            if match.user1_id == user.id:
-                matched_users.append(serialize_user(match.user2))
-            elif match.user2_id == user.id:
-                matched_users.append(serialize_user(match.user1))
+        chatroom = Chatroom.query.get(chatroom_id)
+        if not chatroom:
+            return failure_response("Chatroom not found", 404)
 
-        match_info.append({
-            'user': serialize_user(user),
-            'matched_users': matched_users
-        })
+        receiver.points += data['points']
+        db.session.commit()
 
-    return success_response(match_info)
+        return success_response(receiver.serialize(), 200)
+
+    except Exception as e:
+        return failure_response(str(e), 500)
 
 
 @socketio.on('send message')

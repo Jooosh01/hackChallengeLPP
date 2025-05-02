@@ -1,10 +1,13 @@
 package com.onturaa.languagepairingprogram.retrofit
 
+import com.onturaa.languagepairingprogram.model.PartnerRepository
+import retrofit2.Call
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -86,6 +89,12 @@ interface ApiService {
     suspend fun getMessageHistory(
         @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
     )
+    @GET("api/users/<int:user_id>/matches/")
+        suspend fun get_matches(
+        @Path("user_id") userId: Int,
+        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
+    ): List<PartnerRepository.Partner>
+
 }
 
 data class User(
