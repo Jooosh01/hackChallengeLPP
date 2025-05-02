@@ -43,6 +43,7 @@ fun HomeButtons(
             onClick = {
                 viewModel.onNext()
             },
+            enabled = isSendEnabled == true,
             colors = ButtonDefaults.buttonColors(
                 containerColor = LEPPurple
             )

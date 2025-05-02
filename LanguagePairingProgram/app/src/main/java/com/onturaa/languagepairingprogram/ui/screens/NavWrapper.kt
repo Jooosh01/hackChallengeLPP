@@ -16,7 +16,6 @@ fun NavWrapper() {
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(
                 navController = navController,
-                isSendEnabled = true,
             )
         }
 

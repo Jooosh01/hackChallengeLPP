@@ -1,5 +1,6 @@
 package com.onturaa.languagepairingprogram.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,27 +27,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.onturaa.languagepairingprogram.ui.components.HomeButtons
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 import com.onturaa.languagepairingprogram.viewmodel.HomeViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel(),
-    isSendEnabled: Boolean,
 ) {
     val uiState by viewModel.uiStateFlow.collectAsState()
     val states = uiState.steps
+
+    Log.d("HomeScreen", "isSendEnabled: ${uiState.isSendEnabled}, userInput: ${uiState.userInput}")
 
     Column(
         modifier = Modifier
@@ -61,16 +60,23 @@ fun HomeScreen(
                 WelcomeSubScreen(viewModel)
             }
 
-            HomeViewModel.Step.LEP -> {
-                LEPSubScreen(viewModel)
+            HomeViewModel.Step.Login -> {
+                LoginSubScreen(
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
+                    netID = uiState.netID,
+                    pass = uiState.password,
+                    onNetIDChange = { viewModel.onNetIDChanged(it) },
+                    onPasswordChange = { viewModel.onPasswordChanged(it) }
+                )
             }
 
             HomeViewModel.Step.Name -> {
                 TextSubScreen(
                     viewModel,
-                    isSendEnabled,
+                    uiState.isSendEnabled,
                     HomeViewModel.Step.Name.toString(),
-                    uiState.name,
+                    uiState.name.orEmpty(),
                     {viewModel.onTextChanged(it)}
                 )
             }
@@ -78,9 +84,9 @@ fun HomeScreen(
             HomeViewModel.Step.NetID -> {
                 TextSubScreen(
                     viewModel,
-                    isSendEnabled,
+                    uiState.isSendEnabled,
                     HomeViewModel.Step.NetID.toString(),
-                    uiState.netID,
+                    uiState.netID.orEmpty(),
                     {viewModel.onTextChanged(it)}
                 )
             }
@@ -88,9 +94,9 @@ fun HomeScreen(
             HomeViewModel.Step.Year -> {
                 TextSubScreen(
                     viewModel,
-                    isSendEnabled,
+                    uiState.isSendEnabled,
                     HomeViewModel.Step.Year.toString(),
-                    uiState.year,
+                    uiState.year.orEmpty(),
                     {viewModel.onTextChanged(it)}
                 )
             }
@@ -98,16 +104,38 @@ fun HomeScreen(
             HomeViewModel.Step.Language -> {
                 TextSubScreen(
                     viewModel,
-                    isSendEnabled,
+                    uiState.isSendEnabled,
                     HomeViewModel.Step.Language.toString(),
-                    uiState.language,
+                    uiState.language.orEmpty(),
                     {viewModel.onTextChanged(it)}
                 )
             }
 
             HomeViewModel.Step.Level -> {
-                EndSubScreen(
-                    navController, viewModel, isSendEnabled, HomeViewModel.Step.Level.toString()
+                TextSubScreen(
+                    viewModel,
+                    uiState.isSendEnabled,
+                    HomeViewModel.Step.Level.toString(),
+                    uiState.level.orEmpty(),
+                    {viewModel.onTextChanged(it)}
+                )
+            }
+
+            HomeViewModel.Step.Bio -> {
+                TextSubScreen(
+                    viewModel,
+                    uiState.isSendEnabled,
+                    HomeViewModel.Step.Bio.toString(),
+                    uiState.bio.orEmpty(),
+                    {viewModel.onTextChanged(it)}
+                )
+            }
+
+            HomeViewModel.Step.Submit -> {
+                SubmitScreen(
+                    navController,
+                    viewModel,
+                    uiState.isSendEnabled,
                 )
             }
         }
@@ -158,8 +186,13 @@ private fun WelcomeSubScreen(
 }
 
 @Composable
-private fun LEPSubScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+private fun LoginSubScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    isSendEnabled: Boolean,
+    netID: String = "",
+    pass: String = "",
+    onNetIDChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -180,16 +213,42 @@ private fun LEPSubScreen(
         Spacer(Modifier.height(14.dp))
 
         Text(
-            text = "Fill out the partner selection form to get started!",
+            text = "Login",
             fontSize = 36.sp,
             color = Color.DarkGray,
             textAlign = TextAlign.Center,
             lineHeight = 44.sp
         )
 
+        Column {
+            TextField(
+                value = netID,
+                placeholder = {
+                    Text("netID")
+                },
+                onValueChange = {
+                    onNetIDChange(it)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            TextField(
+                value = pass,
+                placeholder = {
+                    Text("password")
+                },
+                onValueChange = {
+                    onPasswordChange(it)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+
         Spacer(Modifier.height(28.dp))
 
-        HomeButtons(viewModel, null)
+        HomeButtons(viewModel, isSendEnabled = isSendEnabled)
     }
 }
 
@@ -225,42 +284,15 @@ private fun TextSubScreen(
 
     Spacer(modifier = Modifier.height(28.dp))
 
-    HomeButtons(viewModel, isSendEnabled)
+    HomeButtons(viewModel, isSendEnabled = isSendEnabled)
 }
 
 @Composable
-private fun EndSubScreen(
+private fun SubmitScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel(),
     isSendEnabled: Boolean,
-    placeholder: String = ""
 ) {
-    val uiState by viewModel.uiStateFlow.collectAsState()
-
-    Box(
-        modifier = Modifier
-            .background(
-                Color.White,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(16.dp)
-            .fillMaxWidth()
-    ) {
-        TextField(
-            value = uiState.userInput,
-            placeholder = {
-                Text(placeholder)
-            },
-            onValueChange = {
-                viewModel.onTextChanged(it)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-    }
-
-    Spacer(modifier = Modifier.height(28.dp))
-
     Row {
         Button(
             onClick = {
@@ -282,8 +314,9 @@ private fun EndSubScreen(
 
         Button(
             onClick = {
-                viewModel.onSend()
-                navController.navigate(Screen.PartnerScreen.route)
+                viewModel.onSend {
+                    navController.navigate(Screen.PartnerScreen.route)
+                }
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = LEPPurple
@@ -299,22 +332,3 @@ private fun EndSubScreen(
         }
     }
 }
-
-//@Preview
-//@Composable
-//private fun HomeScreenPreview() {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(LEPBeige)
-//            .padding(24.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//        TextSubScreen(
-//            viewModel(),
-//            true,
-//            "text here"
-//        )
-//    }
-//}
