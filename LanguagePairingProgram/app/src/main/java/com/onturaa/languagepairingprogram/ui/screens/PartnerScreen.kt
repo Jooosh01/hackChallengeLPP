@@ -31,13 +31,9 @@ import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 fun PartnerScreen(
     navController: NavController
 ) {
-    val fakeDict: Map<PartnerRepository.Languages, Int> = mapOf(
-        PartnerRepository.Languages.Japanese to 5,
-        PartnerRepository.Languages.Twi to 1
-    )
     val fakeList: List<PartnerRepository.Partner> = listOf(
-        PartnerRepository.Partner("Josh", "jaw542", 2026, fakeDict),
-        PartnerRepository.Partner("Daria", "dib2", 2027, fakeDict)
+        PartnerRepository.Partner("Josh", "jaw542", 2026, "brp", 1),
+        PartnerRepository.Partner("Daria", "dib2", 2027, "linguistics", 3)
     )
 
     Column(
@@ -52,7 +48,7 @@ fun PartnerScreen(
             Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
             LazyColumn {
                 items(fakeList) { item ->
-                    PartnerCard(item, PartnerRepository.Languages.Japanese)
+                    PartnerCard(item, item.targLang )
                 }
             }
         }
@@ -77,22 +73,46 @@ fun PartnerScreen(
 }
 
 @Composable
-private fun PartnerLayout() {
-    val fakeDict: Map<PartnerRepository.Languages, Int> = mapOf(
-        PartnerRepository.Languages.Japanese to 5,
-        PartnerRepository.Languages.Twi to 1
-    )
+private fun PartnerLayout(
+) {
     val fakeList: List<PartnerRepository.Partner> = listOf(
-        PartnerRepository.Partner("Josh", "jaw542", 2026, fakeDict),
-        PartnerRepository.Partner("Daria", "dib2", 2027, fakeDict)
+        PartnerRepository.Partner("Josh", "jaw542", 2026, "Japanese", 5),
+        PartnerRepository.Partner("Daria", "dib2", 2027, "Fortnite", 2)
     )
-    Column {
-        Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
-        LazyColumn {
-            items(fakeList) { item ->
-                PartnerCard(item, PartnerRepository.Languages.Japanese)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LEPBeige)
+            .padding(top = 52.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
+            LazyColumn {
+                items(fakeList) { item ->
+                    PartnerCard(item, item.targLang )
+                }
             }
         }
+        Button(
+            onClick = {
+//                navController.navigate(Screen.ChatScreen.route)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            ),
+        ) {
+            Text(
+                text = "Chat",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+
+//        NavBar(navController)
     }
 }
 
