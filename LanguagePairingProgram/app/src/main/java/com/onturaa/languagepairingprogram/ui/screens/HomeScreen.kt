@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.onturaa.languagepairingprogram.ui.components.HomeButtons
@@ -36,11 +37,12 @@ import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 import com.onturaa.languagepairingprogram.viewmodel.HomeViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     isSendEnabled: Boolean,
 ) {
     val uiState by viewModel.uiStateFlow.collectAsState()
@@ -65,25 +67,41 @@ fun HomeScreen(
 
             HomeViewModel.Step.Name -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, HomeViewModel.Step.Name.toString()
+                    viewModel,
+                    isSendEnabled,
+                    HomeViewModel.Step.Name.toString(),
+                    uiState.name,
+                    {viewModel.onTextChanged(it)}
                 )
             }
 
             HomeViewModel.Step.NetID -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, HomeViewModel.Step.NetID.toString()
+                    viewModel,
+                    isSendEnabled,
+                    HomeViewModel.Step.NetID.toString(),
+                    uiState.netID,
+                    {viewModel.onTextChanged(it)}
                 )
             }
 
             HomeViewModel.Step.Year -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, HomeViewModel.Step.Year.toString()
+                    viewModel,
+                    isSendEnabled,
+                    HomeViewModel.Step.Year.toString(),
+                    uiState.year,
+                    {viewModel.onTextChanged(it)}
                 )
             }
 
             HomeViewModel.Step.Language -> {
                 TextSubScreen(
-                    viewModel, isSendEnabled, HomeViewModel.Step.Language.toString()
+                    viewModel,
+                    isSendEnabled,
+                    HomeViewModel.Step.Language.toString(),
+                    uiState.language,
+                    {viewModel.onTextChanged(it)}
                 )
             }
 
@@ -98,7 +116,7 @@ fun HomeScreen(
 
 @Composable
 private fun WelcomeSubScreen(
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     Text(
         text = "WELCOME",
@@ -141,7 +159,7 @@ private fun WelcomeSubScreen(
 
 @Composable
 private fun LEPSubScreen(
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     Column(
         modifier = Modifier
@@ -177,12 +195,12 @@ private fun LEPSubScreen(
 
 @Composable
 private fun TextSubScreen(
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     isSendEnabled: Boolean,
-    placeholder: String = ""
+    placeholder: String = "",
+    value: String = "",
+    onValueChange: (String) -> Unit
 ) {
-    val uiState by viewModel.uiStateFlow.collectAsState()
-
     Box(
         modifier = Modifier
             .background(
@@ -193,12 +211,12 @@ private fun TextSubScreen(
             .fillMaxWidth()
     ) {
         TextField(
-            value = uiState.userInput,
+            value = value,
             placeholder = {
                 Text(placeholder)
             },
             onValueChange = {
-                viewModel.onTextChanged(it)
+                onValueChange(it)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -213,7 +231,7 @@ private fun TextSubScreen(
 @Composable
 private fun EndSubScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     isSendEnabled: Boolean,
     placeholder: String = ""
 ) {
@@ -282,21 +300,21 @@ private fun EndSubScreen(
     }
 }
 
-@Preview
-@Composable
-private fun HomeScreenPreview() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(LEPBeige)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        TextSubScreen(
-            viewModel(),
-            true,
-            "text here"
-        )
-    }
-}
+//@Preview
+//@Composable
+//private fun HomeScreenPreview() {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(LEPBeige)
+//            .padding(24.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        TextSubScreen(
+//            viewModel(),
+//            true,
+//            "text here"
+//        )
+//    }
+//}

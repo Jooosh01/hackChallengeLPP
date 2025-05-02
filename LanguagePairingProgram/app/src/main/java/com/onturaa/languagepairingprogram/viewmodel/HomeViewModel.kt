@@ -1,17 +1,15 @@
 package com.onturaa.languagepairingprogram.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.onturaa.languagepairingprogram.retrofit.RetrofitInstance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.Language
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    //
+    private val retrofitInstance: RetrofitInstance
 ) : ViewModel() {
 
     private val _uiStateFlow = MutableStateFlow(
@@ -35,7 +33,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onTextChanged(text: String) {
-        _uiStateFlow.value = _uiStateFlow.value.copy(userInput = text)
+        val currentState = _uiStateFlow.value
+        val updatedState = when (currentState.steps) {
+            Step.Name -> currentState.copy(name = text)
+            Step.NetID -> currentState.copy(netID = text)
+            Step.Year -> currentState.copy(year = text)
+            Step.Language -> currentState.copy(language = text)
+            Step.Level -> currentState.copy(level = text)
+            else -> currentState
+        }
+        _uiStateFlow.value = updatedState
+//        _uiStateFlow.value = _uiStateFlow.value.copy(name = text)
     }
 
     fun onSend() {
