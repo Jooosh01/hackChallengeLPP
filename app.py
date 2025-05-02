@@ -5,6 +5,7 @@ from db import db, User, Language, Match, Chatroom, Message
 from werkzeug.security import check_password_hash , generate_password_hash
 from flask_socketio import join_room, emit, SocketIO
 import os 
+from datetime import timedelta
 
 
 app = Flask(__name__)
@@ -13,6 +14,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///lan
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "default_jwt_secret")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 db.init_app(app)
@@ -72,6 +76,7 @@ def login():
     return success_response({'token': token, 'user': serialize_user(user)}, 200)
 
 @app.route('/api/languages/', methods=['GET'])
+@jwt_required()
 def get_languages():
     languages = Language.query.all()
     return success_response({
@@ -282,6 +287,33 @@ def get_message_history(chatroom_id):
 
     return success_response(json.dumps(message_history))
 
+@app.route('/api/users/match_info/', methods=['GET'])
+@jwt_required()
+def get_users_match_info():
+    users = User.query.all()
+    match_info = []
+
+    for user in users:
+        matches = Match.query.filter(
+            (Match.user1_id == user.id) | (Match.user2_id == user.id),
+                Match.status == 'accepted'
+        ).all()
+
+        matched_users = []
+        for match in matches:
+            if match.user1_id == user.id:
+                matched_users.append(serialize_user(match.user2))
+            elif match.user2_id == user.id:
+                matched_users.append(serialize_user(match.user1))
+
+        match_info.append({
+            'user': serialize_user(user),
+            'matched_users': matched_users
+        })
+
+    return success_response(match_info)
+
+
 @socketio.on('send message')
 def socket_message(data):
     chatroom_id = data['chatroom_id']
@@ -331,4 +363,4 @@ def save_message(chatroom_id, user_id, content):
         return message.serialize()
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
