@@ -101,27 +101,6 @@ def get_all_users():
         'users': [user.serialize() for user in users]
     })
     
-@app.route('/api/users/update/', methods=['PUT'])
-def update_user():
-    try:
-        data = json.loads(request.data)
-        netID = data['netID']
-        if not netID:
-            return failure_response("Missing required fields")
-        user = User.query.filter_by(netID=netID).first()
-        if not user:
-            return failure_response("User not found", 404)
-        if 'name' in data:
-            user.name = data['name']
-        if 'level' in data:
-            user.level = data['level']
-        if 'language_id' in data:
-            user.language_id = data['language_id']
-        if 'description' in data:
-            user.description = data['description']
-    except Exception as e:
-        return failure_response(str(e), 500)
-    
 @app.route('/api/users/<int:user_id>/', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
@@ -275,7 +254,7 @@ def create_chatroom():
             return failure_response("Missing required fields", 404)
         
         match = Match.query.filter(
-            (Match.user1_id == data['user1.id']) | (Match.user2_id == data['user2.id']),
+            (Match.user1_id == data['user1_id']) | (Match.user2_id == data['user2_id']),
                 Match.status == 'accepted'
         ).first()
 
@@ -382,7 +361,7 @@ def give_points_alternate(chatroom_id, message_id):
             return failure_response("Chatroom not found", 404)
         if not message:
             return failure_response("Message not found", 404)
-        if not message in Chatroom.messages:
+        if not message in chatroom.messages:
             return failure_response("Message not found in chatroom", 404)
         
         receiver_id = message.user_id
@@ -404,10 +383,12 @@ def give_points_alternate(chatroom_id, message_id):
         if data['points'] <= 0 or data['points'] > 5:
             return failure_response("Points must be between 1 and 5", 400)
 
-        receiver.points += data['points']
+        receiver.score += data['points']
+        message.score += data['points']
+
         db.session.commit()
 
-        return success_response(receiver.serialize(), 200)
+        return success_response(message.serialize(), 200)
     
     except Exception as e:
         return failure_response(str(e), 500)
