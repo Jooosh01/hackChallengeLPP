@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.ui.components.NavBar
@@ -27,6 +28,8 @@ import com.onturaa.languagepairingprogram.ui.components.PartnerCard
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
+import com.onturaa.languagepairingprogram.viewmodel.HomeViewModel
+import com.onturaa.languagepairingprogram.viewmodel.PartnerViewModel
 
 @Composable
 fun PartnerScreen(
@@ -34,11 +37,10 @@ fun PartnerScreen(
     lang: String
 ) {
     val fakeList: List<PartnerRepository.Partner> = listOf(
-        PartnerRepository.Partner("Josh", "jaw542", 2026, "brp", 1),
-        PartnerRepository.Partner("Daria", "dib2", 2027, "linguistics", 3),
-        PartnerRepository.Partner("John", "dib2", 2028, "linguistics", 4),
-        PartnerRepository.Partner("Lilian", "dib2", 2028, "linguistics", 0)
-
+        PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
+            3,
+            "Japanse",
+            "val flag_url: String"))
     )
 
     Column(
@@ -53,7 +55,7 @@ fun PartnerScreen(
             Text("TODO LANGUAGE NAME", fontSize = 30.sp, textAlign = TextAlign.Center)
             LazyColumn {
                 items(fakeList) { item ->
-                    PartnerCard(item, item.targLang )
+                    PartnerCard(item, item.language.name )
                 }
             }
         }
@@ -79,15 +81,31 @@ fun PartnerScreen(
 
 @Composable
 private fun PartnerLayout(
-    lang: String
+   // navController: NavController,
+    //viewModel: PartnerViewModel,
+    user: PartnerRepository.Partner,
+    //token: String
 ) {
-    val fakeList: List<PartnerRepository.Partner> = listOf(
-        PartnerRepository.Partner("Josh", "jaw542", 2026, "Japanese", 1),
-        PartnerRepository.Partner("Daria", "dib2", 2027, "Fortnite", 5),
-        PartnerRepository.Partner("John", "dib2", 2028, "linguistics", 4),
-        PartnerRepository.Partner("Lilian", "dib2", 2028, "linguistics", 0)
-    )
 
+    val fakeList: List<PartnerRepository.Partner> = listOf(
+        PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
+            3,
+            "Japanse",
+            "val flag_url: String")) ,
+    PartnerRepository.Partner(2, "dib42", "Daria", "Intermediate", false, null, PartnerRepository.Language(
+        2,
+        "Japanse",
+        "val flag_url: String")),
+        PartnerRepository.Partner(1, "jaw542", "John", "High Intermediate", false, null, PartnerRepository.Language(
+            3,
+            "Japanse",
+            "val flag_url: String")),
+                PartnerRepository.Partner(4, "jaw542", "Lilian", "Beginner", false, null, PartnerRepository.Language(
+            3,
+            "Japanse",
+            "val flag_url: String"))
+
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,13 +115,12 @@ private fun PartnerLayout(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("Your Fellow $lang Learners", fontSize = 50.sp,
+            Text("Your Fellow ${user.language.name} Learners", fontSize = 50.sp,
                 fontWeight = FontWeight.Bold,
                 color = LEPGreen, textAlign = TextAlign.Center)
             LazyColumn {
-                val sorted = fakeList.sortedByDescending { it.selfScore }
-                items(sorted) { item ->
-                    PartnerCard(item, item.targLang )
+                items(fakeList) { item ->
+                    PartnerCard(item, item.language.name )
                 }
             }
         }
@@ -130,5 +147,9 @@ private fun PartnerLayout(
 @Preview
 @Composable
 fun PartnerScreenPreview() {
-    PartnerLayout("Japanese")
+   val fakePart = PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
+        3,
+        "Japanse",
+        "val flag_url: String"))
+    PartnerLayout(fakePart)
 }

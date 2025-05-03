@@ -18,7 +18,7 @@ import com.onturaa.languagepairingprogram.viewmodel.HomeViewModel
 @Composable
 fun HomeButtons(
     viewModel: HomeViewModel,
-    isSendEnabled: Boolean?
+    isSendEnabled: Boolean
 ) {
     Row {
         Button(
@@ -43,6 +43,7 @@ fun HomeButtons(
             onClick = {
                 viewModel.onNext()
             },
+            enabled = isSendEnabled == true,
             colors = ButtonDefaults.buttonColors(
                 containerColor = LEPPurple
             )
