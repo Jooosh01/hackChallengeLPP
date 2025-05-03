@@ -13,18 +13,18 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    @POST("/login/")
+    @POST("login/")
     suspend fun login(
         @Body loginRequest: LoginRequest,
     )
 
-    @POST("/api/users/")
+    @POST("api/users/")
     suspend fun createUser(
         @Query("netID") netID: String? = "",
         @Query("name") name: String? = "",
         @Query("password") password: String? = "",
         @Query("level") level: String? = "",
-        @Query("language_id") languageId: String? = "",
+        @Query("language_id") languageId: String?,
         @Query("description") description: String? = ""
     ): User
 
