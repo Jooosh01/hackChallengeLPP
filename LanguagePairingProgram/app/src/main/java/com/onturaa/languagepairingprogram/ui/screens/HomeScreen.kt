@@ -144,9 +144,8 @@ private fun SubmitScreen(
 
         Button(
             onClick = {
-                // Trigger the user creation and navigate after success
                 viewModel.onSend {
-                    navController.navigate("PartnerScreen") // This will navigate only after user creation succeeds
+                    navController.navigate("PartnerScreen")
                 }
             },
             colors = ButtonDefaults.buttonColors(

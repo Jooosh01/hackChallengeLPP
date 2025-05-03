@@ -50,9 +50,9 @@ private val retrofitInstance: RetrofitInstance,
             viewModelScope.launch {
 
 //                users = apiService.get_matches(userId)
-                users = retrofitInstance.apiService.get_matches(userId)
+//                users = retrofitInstance.apiService.get_matches(userId)
 
             }
         }
     }
-}
+//}

@@ -34,7 +34,7 @@ class HomeViewModel @Inject constructor(
         val loginError: String? = null
     ) {
         private fun isValidNetID(): Boolean {
-            return netID.matches(Regex("^[a-z]{2,}\\d{2,}$"))
+            return netID.matches(Regex("^[a-z]{1,}\\d{1,}$"))
         }
 
         private fun isValidPassword(): Boolean {
