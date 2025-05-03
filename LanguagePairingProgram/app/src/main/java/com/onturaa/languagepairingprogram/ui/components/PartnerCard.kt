@@ -24,16 +24,6 @@ import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 
-fun  ratingToString(sr: Int): String{
-    return when (sr){
-        1 -> "Beginner"
-        2-> "Intermediate"
-        3 -> "High Intermediate"
-        4 -> "Advanced"
-        5-> "Native"
-        else -> "DONT PASS IN LESS THAN 1 or GREATER THAN 5"
-    }
-}
 
 @Composable
 fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
