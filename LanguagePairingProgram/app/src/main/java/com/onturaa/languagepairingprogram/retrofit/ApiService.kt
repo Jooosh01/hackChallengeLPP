@@ -1,5 +1,6 @@
 package com.onturaa.languagepairingprogram.retrofit
 
+import com.onturaa.languagepairingprogram.model.Language
 import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.model.LoginRequest
 import com.onturaa.languagepairingprogram.model.User
@@ -24,12 +25,12 @@ interface ApiService {
         @Query("name") name: String? = "",
         @Query("password") password: String? = "",
         @Query("level") level: String? = "",
-        @Query("language_id") languageId: String?,
+        @Query("language") language: String? = "",
         @Query("description") description: String? = ""
     ): User
 
-    @GET("/api/languages/")
-    suspend fun getLanguages()
+    @GET("api/languages/")
+    suspend fun getLanguages(): List<Language>
 
     @POST("/api/matches/")
     suspend fun createMatch()

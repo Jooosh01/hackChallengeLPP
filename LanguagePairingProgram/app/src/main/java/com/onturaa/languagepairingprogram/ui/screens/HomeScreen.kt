@@ -42,10 +42,6 @@ fun HomeScreen(
                 WelcomeSubScreen(viewModel)
             }
 
-            HomeViewModel.Step.Login -> {
-                WelcomeSubScreen(viewModel)
-            }
-
             HomeViewModel.Step.NetID -> {
                 TextSubScreen(
                     viewModel = viewModel,
@@ -144,9 +140,7 @@ private fun SubmitScreen(
 
         Button(
             onClick = {
-                viewModel.onSend {
-                    navController.navigate("PartnerScreen")
-                }
+                navController.navigate(Screen.PartnerScreen.route)
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = LEPPurple
@@ -238,13 +232,3 @@ private fun TextSubScreen(
 
     HomeButtons(viewModel = viewModel, isSendEnabled = isSendEnabled)
 }
-
-
-//                LoginSubScreen(
-//                    viewModel = viewModel,
-//                    isSendEnabled = uiState.isSendEnabled,
-//                    netID = uiState.netID,
-//                    pass = uiState.password,
-//                    onNetIDChange = { viewModel.onNetIDChanged(it) },
-//                    onPasswordChange = { viewModel.onPasswordChanged(it) }
-//                )
