@@ -34,6 +34,72 @@ import com.onturaa.languagepairingprogram.viewmodel.PartnerViewModel
 @Composable
 fun PartnerScreen(
     navController: NavController,
+) {
+    val fakeList: List<PartnerRepository.Partner> = listOf(
+        PartnerRepository.Partner(3, "jaw542", "Josh", "Advanced", false, null, PartnerRepository.Language(
+            3,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
+        PartnerRepository.Partner(2, "dib42", "Daria", "Beginner", false, null, PartnerRepository.Language(
+            2,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
+        PartnerRepository.Partner(1, "ja007", "John", "Intermediate", false, null, PartnerRepository.Language(
+            3,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
+        PartnerRepository.Partner(4, "lw555", "Lillian", "Beginner", false, null, PartnerRepository.Language(
+            3,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
+        PartnerRepository.Partner(5, "su24", "Sasuke", "Native", false, null, PartnerRepository.Language(
+            3,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png"))
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LEPBeige)
+            .padding(top = 52.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Your Fellow Japanese Learners", fontSize = 50.sp,
+            fontWeight = FontWeight.Bold,
+            color = LEPGreen, textAlign = TextAlign.Center, lineHeight = 54.sp,
+            modifier = Modifier.padding(vertical = 25.dp))
+
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
+            items(fakeList) { item ->
+                PartnerCard(item, item.language.name)
+            }
+        }
+
+        Button(
+            onClick = {
+                navController.navigate(Screen.ChatScreen.route)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            ),
+            modifier = Modifier.padding(vertical = 25.dp)
+        ) {
+            Text(
+                text = "Chat",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+    }
+}
+
+@Composable
+private fun Partner(
+    navController: NavController,
     lang: String
 ) {
     val fakeList: List<PartnerRepository.Partner> = listOf(
@@ -81,7 +147,7 @@ fun PartnerScreen(
 
 @Composable
 private fun PartnerLayout(
-   // navController: NavController,
+    // navController: NavController,
     //viewModel: PartnerViewModel,
     user: PartnerRepository.Partner,
     //token: String
@@ -92,15 +158,15 @@ private fun PartnerLayout(
             3,
             "Japanese",
             "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")) ,
-    PartnerRepository.Partner(2, "dib42", "Daria", "Intermediate", false, null, PartnerRepository.Language(
-        2,
-        "Japanese",
-        "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
+        PartnerRepository.Partner(2, "dib42", "Daria", "Intermediate", false, null, PartnerRepository.Language(
+            2,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
         PartnerRepository.Partner(1, "jaw542", "John", "High Intermediate", false, null, PartnerRepository.Language(
             3,
             "Japanese",
             "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
-                PartnerRepository.Partner(4, "jaw542", "Lilian", "Beginner", false, null, PartnerRepository.Language(
+        PartnerRepository.Partner(4, "jaw542", "Lilian", "Beginner", false, null, PartnerRepository.Language(
             3,
             "Japanese",
             "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png"))

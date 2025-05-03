@@ -23,10 +23,8 @@ fun NavWrapper() {
 
         composable(
             route = Screen.PartnerScreen.route,
-            arguments = listOf(navArgument("lang") { type = NavType.StringType })
         ) { backStackEntry ->
-            val lang = backStackEntry.arguments?.getString("lang") ?: "default"
-            PartnerScreen(navController = navController, lang = lang)
+            PartnerScreen(navController = navController)
         }
 
         composable(route = Screen.ChatScreen.route) {

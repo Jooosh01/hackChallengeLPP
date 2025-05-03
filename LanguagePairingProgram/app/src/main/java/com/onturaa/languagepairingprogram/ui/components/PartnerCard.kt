@@ -49,12 +49,12 @@ fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
                 Text(text = partner.name,  fontSize = 30.sp,
                     fontWeight = FontWeight.Bold)
                 Text(partner.netId, fontSize = 15.sp)
+                Text(partner.level)
             }
             Column(modifier = Modifier
                 .padding(20.dp)
                 .fillMaxHeight(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Bottom) {
-AsyncImage(model = partner.language.flag_url, contentDescription = null)
-                Text(partner.level)
+                AsyncImage(model = partner.language.flag_url, contentDescription = null)
             }
         }
     }
