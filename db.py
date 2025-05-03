@@ -13,7 +13,7 @@ class User(db.Model):
     description = db.Column(db.Text)
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
     profile_picture_url = db.Column(db.String(256))
-    points = db.Column(db.Integer, default = 0)
+    score = db.Column(db.Integer, default = 0)
 
     language = db.relationship('Language', back_populates = 'users') 
     match_initiated = db.relationship('Match', foreign_keys = 'Match.user1_id', back_populates = 'user1')
@@ -29,7 +29,8 @@ class User(db.Model):
             'level': self.level,
             'match_status': self.match_status,
             'description': self.description,
-            'language': self.language.serialize()
+            'language': self.language.serialize(),
+            'score': self.score
         }
 
 class Language(db.Model):
@@ -61,7 +62,7 @@ class Match(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'user1': self.user.serialize(),
+            'user1': self.user1.serialize(),
             'user2': self.user2.serialize(),
             'status': self.status,
             'timestamp': self.timestamp.isoformat() if self.timestamp else None
@@ -95,6 +96,7 @@ class Message(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     content = db.Column(db.String(750), nullable=False)
     timestamp = db.Column(db.DateTime, server_default = db.func.now())
+    score = db.Column(db.Integer, default = 0);
 
     chatroom = db.relationship('Chatroom', back_populates="messages")
 
@@ -105,10 +107,11 @@ class Message(db.Model):
             'user_id': self.user_id,
             'content': self.content,
             'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'score': self.score,
         }
     
 
-def add_langauges():
+def add_languages():
     initial_languages = [
         { 'name': 'Arabic', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/arabic.png' },
         { 'name': 'Bengali', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/bengali.png' },
