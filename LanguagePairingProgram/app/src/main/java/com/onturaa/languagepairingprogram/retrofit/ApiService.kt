@@ -50,7 +50,7 @@ interface ApiService {
     suspend fun getUser(@Path("user_id") userId: Int)
 
     @GET("/api/users/")
-    suspend fun getAllUsers()
+    suspend fun getAllUsers(): List<PartnerRepository.Partner>
 
     @POST("/api/chatroom/")
     suspend fun createChatroom()
