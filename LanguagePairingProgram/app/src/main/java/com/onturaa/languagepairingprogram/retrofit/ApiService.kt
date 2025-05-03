@@ -2,10 +2,10 @@ package com.onturaa.languagepairingprogram.retrofit
 
 import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.model.LoginRequest
+import com.onturaa.languagepairingprogram.model.User
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -16,12 +16,6 @@ interface ApiService {
     @POST("/login/")
     suspend fun login(
         @Body loginRequest: LoginRequest,
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU"
-    )
-
-    @GET("/api/languages/")
-    suspend fun getLanguages(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
     )
 
     @POST("/api/users/")
@@ -30,78 +24,46 @@ interface ApiService {
         @Query("name") name: String? = "",
         @Query("password") password: String? = "",
         @Query("level") level: String? = "",
-        @Query("language_id") language_id: String? = "",
-        @Query("description") description: String? = "",
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
+        @Query("language_id") languageId: String? = "",
+        @Query("description") description: String? = ""
     ): User
 
+    @GET("/api/languages/")
+    suspend fun getLanguages()
+
     @POST("/api/matches/")
-    suspend fun createMatch(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun createMatch()
 
     @POST("/api/matches/{match_id}/accept/")
-    suspend fun acceptMatch(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun acceptMatch(@Path("match_id") matchId: Int)
 
     @DELETE("/api/users/{user_id}/")
-    suspend fun deleteUser(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun deleteUser(@Path("user_id") userId: Int)
 
     @PUT("/api/users/{user_id}/match_status/")
-    suspend fun updateMatchStatus(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun updateMatchStatus(@Path("user_id") userId: Int)
 
     @POST("/api/matches/auto_match/")
-    suspend fun autoMatch(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun autoMatch()
 
     @GET("/api/users/{user_id}/")
-    suspend fun getUser(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun getUser(@Path("user_id") userId: Int)
 
     @GET("/api/users/")
-    suspend fun getAllUsers(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun getAllUsers()
 
     @POST("/api/chatroom/")
-    suspend fun createChatroom(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun createChatroom()
 
     @PUT("/api/chatroom/{chatroom_id}/")
-    suspend fun closeChatroom(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun closeChatroom(@Path("chatroom_id") chatroomId: Int)
 
     @POST("/api/chatroom/{chatroom_id}/messages/")
-    suspend fun sendMessage(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun sendMessage(@Path("chatroom_id") chatroomId: Int)
 
     @GET("/api/chatroom/{chatroom_id}/messages/")
-    suspend fun getMessageHistory(
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    )
+    suspend fun getMessageHistory(@Path("chatroom_id") chatroomId: Int)
+
     @GET("api/users/{user_id}/matches/")
-        suspend fun get_matches(
-        @Path("user_id") userId: Int,
-        @Header("Authorization") apiKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU",
-    ): List<PartnerRepository.Partner>
-
+    suspend fun getMatches(@Path("user_id") userId: Int): List<PartnerRepository.Partner>
 }
-
-data class User(
-    val netID: String,
-    val name: String,
-    val password: String,
-    val level: String,
-    val language_id: String,
-    val description: String,
-)

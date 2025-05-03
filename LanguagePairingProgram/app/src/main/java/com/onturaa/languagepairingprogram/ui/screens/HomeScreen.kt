@@ -1,32 +1,16 @@
 package com.onturaa.languagepairingprogram.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,7 +27,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiStateFlow.collectAsState()
-    val states = uiState.steps
+    val currentStep = uiState.steps
 
     Column(
         modifier = Modifier
@@ -53,87 +37,80 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        when (states) {
+        when (currentStep) {
             HomeViewModel.Step.Welcome -> {
                 WelcomeSubScreen(viewModel)
             }
 
             HomeViewModel.Step.Login -> {
-                LoginSubScreen(
+                WelcomeSubScreen(viewModel)
+            }
+
+            HomeViewModel.Step.NetID -> {
+                TextSubScreen(
                     viewModel = viewModel,
                     isSendEnabled = uiState.isSendEnabled,
-                    netID = uiState.netID,
-                    pass = uiState.password,
-                    onNetIDChange = { viewModel.onNetIDChanged(it) },
-                    onPasswordChange = { viewModel.onPasswordChanged(it) }
+                    placeholder = HomeViewModel.Step.NetID.toString(),
+                    value = uiState.netID,
+                    onValueChange = { viewModel.onTextChanged(it) }
                 )
             }
 
             HomeViewModel.Step.Name -> {
                 TextSubScreen(
-                    viewModel,
-                    uiState.isSendEnabled,
-                    HomeViewModel.Step.Name.toString(),
-                    uiState.name.orEmpty(),
-                    {viewModel.onTextChanged(it)}
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
+                    placeholder = HomeViewModel.Step.Name.toString(),
+                    value = uiState.name,
+                    onValueChange = { viewModel.onTextChanged(it) }
                 )
             }
 
-            HomeViewModel.Step.NetID -> {
+            HomeViewModel.Step.Password -> {
                 TextSubScreen(
-                    viewModel,
-                    uiState.isSendEnabled,
-                    HomeViewModel.Step.NetID.toString(),
-                    uiState.netID.orEmpty(),
-                    {viewModel.onTextChanged(it)}
-                )
-            }
-
-            HomeViewModel.Step.Year -> {
-                TextSubScreen(
-                    viewModel,
-                    uiState.isSendEnabled,
-                    HomeViewModel.Step.Year.toString(),
-                    uiState.year.orEmpty(),
-                    {viewModel.onTextChanged(it)}
-                )
-            }
-
-            HomeViewModel.Step.Language -> {
-                TextSubScreen(
-                    viewModel,
-                    uiState.isSendEnabled,
-                    HomeViewModel.Step.Language.toString(),
-                    uiState.language.orEmpty(),
-                    {viewModel.onTextChanged(it)}
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
+                    placeholder = HomeViewModel.Step.Password.toString(),
+                    value = uiState.password,
+                    onValueChange = { viewModel.onTextChanged(it) }
                 )
             }
 
             HomeViewModel.Step.Level -> {
                 TextSubScreen(
-                    viewModel,
-                    uiState.isSendEnabled,
-                    HomeViewModel.Step.Level.toString(),
-                    uiState.level.orEmpty(),
-                    {viewModel.onTextChanged(it)}
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
+                    placeholder = HomeViewModel.Step.Level.toString(),
+                    value = uiState.level,
+                    onValueChange = { viewModel.onTextChanged(it) }
                 )
             }
 
-            HomeViewModel.Step.Bio -> {
+            HomeViewModel.Step.Language -> {
                 TextSubScreen(
-                    viewModel,
-                    uiState.isSendEnabled,
-                    HomeViewModel.Step.Bio.toString(),
-                    uiState.bio.orEmpty(),
-                    {viewModel.onTextChanged(it)}
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
+                    placeholder = HomeViewModel.Step.Language.toString(),
+                    value = uiState.language,
+                    onValueChange = { viewModel.onTextChanged(it) }
+                )
+            }
+
+            HomeViewModel.Step.Description -> {
+                TextSubScreen(
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
+                    placeholder = HomeViewModel.Step.Description.toString(),
+                    value = uiState.bio,
+                    onValueChange = { viewModel.onTextChanged(it) }
                 )
             }
 
             HomeViewModel.Step.Submit -> {
                 SubmitScreen(
-                    navController,
-                    viewModel,
-                    uiState.isSendEnabled,
+                    navController = navController,
+                    viewModel = viewModel,
+                    isSendEnabled = uiState.isSendEnabled,
                 )
             }
         }
@@ -141,9 +118,54 @@ fun HomeScreen(
 }
 
 @Composable
-private fun WelcomeSubScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+private fun SubmitScreen(
+    navController: NavController,
+    viewModel: HomeViewModel,
+    isSendEnabled: Boolean,
 ) {
+    Row {
+        Button(
+            onClick = {
+                viewModel.onBack()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            )
+        ) {
+            Text(
+                text = "BACK",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+
+        Spacer(Modifier.width(28.dp))
+
+        Button(
+            onClick = {
+                // Trigger the user creation and navigate after success
+                viewModel.onSend {
+                    navController.navigate("PartnerScreen") // This will navigate only after user creation succeeds
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LEPPurple
+            ),
+            enabled = isSendEnabled
+        ) {
+            Text(
+                text = "SUBMIT",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LEPBeige
+            )
+        }
+    }
+}
+
+@Composable
+private fun WelcomeSubScreen(viewModel: HomeViewModel) {
     Text(
         text = "WELCOME",
         fontSize = 64.sp,
@@ -184,118 +206,11 @@ private fun WelcomeSubScreen(
 }
 
 @Composable
-private fun LoginSubScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
-    isSendEnabled: Boolean,
-    netID: String = "",
-    pass: String = "",
-    onNetIDChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
-) {
-    val uiState by viewModel.uiStateFlow.collectAsState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(LEPBeige)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = "Login",
-            fontSize = 36.sp,
-            color = Color.DarkGray,
-            textAlign = TextAlign.Center,
-            lineHeight = 44.sp
-        )
-
-        Column {
-            TextField(
-                value = netID,
-                placeholder = {
-                    Text("netID")
-                },
-                onValueChange = {
-                    onNetIDChange(it)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            TextField(
-                value = pass,
-                placeholder = {
-                    Text("password")
-                },
-                onValueChange = {
-                    onPasswordChange(it)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // 👇 Error message displayed here if login failed
-            if (uiState.loginError != null) {
-                Text(
-                    text = uiState.loginError!!,
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
-        }
-
-        Spacer(Modifier.height(28.dp))
-
-        Row {
-            Button(
-                onClick = {
-                    viewModel.onBack()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LEPPurple
-                )
-            ) {
-                Text(
-                    text = "BACK",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LEPBeige
-                )
-            }
-
-            Spacer(Modifier.width(28.dp))
-
-            Button(
-                onClick = {
-                    viewModel.onSend {
-                        if (viewModel.uiStateFlow.value.loginSuccess) {
-                            viewModel.onNext()
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LEPPurple
-                ),
-                enabled = isSendEnabled
-            ) {
-                Text(
-                    text = "LOGIN",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LEPBeige
-                )
-            }
-        }
-    }
-}
-
-
-
-@Composable
 private fun TextSubScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel,
     isSendEnabled: Boolean,
-    placeholder: String = "",
-    value: String = "",
+    placeholder: String,
+    value: String,
     onValueChange: (String) -> Unit
 ) {
     Box(
@@ -322,51 +237,15 @@ private fun TextSubScreen(
 
     Spacer(modifier = Modifier.height(28.dp))
 
-    HomeButtons(viewModel, isSendEnabled = isSendEnabled)
+    HomeButtons(viewModel = viewModel, isSendEnabled = isSendEnabled)
 }
 
-@Composable
-private fun SubmitScreen(
-    navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel(),
-    isSendEnabled: Boolean,
-) {
-    Row {
-        Button(
-            onClick = {
-                viewModel.onBack()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LEPPurple
-            )
-        ) {
-            Text(
-                text = "BACK",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = LEPBeige
-            )
-        }
 
-        Spacer(Modifier.width(28.dp))
-
-        Button(
-            onClick = {
-                viewModel.onSend {
-                    navController.navigate(Screen.PartnerScreen.route)
-                }
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LEPPurple
-            ),
-            enabled = isSendEnabled
-        ) {
-            Text(
-                text = "SUBMIT",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = LEPBeige
-            )
-        }
-    }
-}
+//                LoginSubScreen(
+//                    viewModel = viewModel,
+//                    isSendEnabled = uiState.isSendEnabled,
+//                    netID = uiState.netID,
+//                    pass = uiState.password,
+//                    onNetIDChange = { viewModel.onNetIDChanged(it) },
+//                    onPasswordChange = { viewModel.onPasswordChanged(it) }
+//                )

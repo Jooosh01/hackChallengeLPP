@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.onturaa.languagepairingprogram.model.LoginRequest
+import com.onturaa.languagepairingprogram.model.User
 import com.onturaa.languagepairingprogram.retrofit.RetrofitInstance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +26,10 @@ class HomeViewModel @Inject constructor(
         val steps: Step = Step.Welcome,
         val name: String = "",
         val netID: String = "",
-        val year: String = "",
-        val language: String = "",
-        val level: String = "",
-        val bio: String = "",
         val password: String = "",
+        val level: String = "",
+        val language: String = "",
+        val bio: String = "",
         val loginSuccess: Boolean = false,
         val loginError: String? = null
     ) {
@@ -43,13 +43,13 @@ class HomeViewModel @Inject constructor(
 
         val isSendEnabled: Boolean
             get() = when (steps) {
-                Step.Login -> isValidNetID() && isValidPassword()
-                Step.Name -> name.isNotBlank()
+                Step.Login -> true // Just to proceed to NetID screen
                 Step.NetID -> isValidNetID()
-                Step.Year -> year.isNotBlank()
-                Step.Language -> language.isNotBlank()
+                Step.Name -> name.isNotBlank()
+                Step.Password -> isValidPassword()
                 Step.Level -> level.isNotBlank()
-                Step.Bio -> bio.isNotBlank()
+                Step.Language -> language.isNotBlank()
+                Step.Description -> bio.isNotBlank()
                 Step.Submit -> true
                 else -> false
             }
@@ -60,10 +60,10 @@ class HomeViewModel @Inject constructor(
         val updatedState = when (currentState.steps) {
             Step.Name -> currentState.copy(name = text)
             Step.NetID -> currentState.copy(netID = text)
-            Step.Year -> currentState.copy(year = text)
-            Step.Language -> currentState.copy(language = text)
+            Step.Password -> currentState.copy(password = text)
             Step.Level -> currentState.copy(level = text)
-            Step.Bio -> currentState.copy(bio = text)
+            Step.Language -> currentState.copy(language = text)
+            Step.Description -> currentState.copy(bio = text)
             else -> currentState
         }
 
@@ -86,34 +86,50 @@ class HomeViewModel @Inject constructor(
 
         when (state.steps) {
             Step.Login -> {
+                // Just go forward on login screen, no server call
+                Log.d("HomeViewModel", "Login step - No action, proceeding.")
+                onSuccess()
+            }
+
+            Step.Submit -> {
                 viewModelScope.launch {
                     try {
-                        val loginRequest = LoginRequest(
+                        // Create user with the data from the UI state
+                        val user = retrofitInstance.apiService.createUser(
                             netID = state.netID,
-                            password = state.password
+                            name = state.name,
+                            password = state.password,
+                            level = state.level,
+                            language_id = state.language,
+                            description = state.bio
                         )
-                        val user = retrofitInstance.apiService.login(loginRequest)
-                        Log.d("Login", "User logged in: $user")
 
+                        Log.d("User Creation", "User created: $user")
+
+                        // If successful, update the state and call the onSuccess callback to navigate
                         _uiStateFlow.value = state.copy(
                             loginSuccess = true,
                             loginError = null
                         )
-                        onSuccess()
-                    } catch (e: Exception) {
-                        Log.e("LoginError", "Login failed: ${e.message}")
 
+                        // Ensure we have successfully updated the state
+                        Log.d("HomeViewModel", "State updated successfully, loginSuccess = true")
+
+                        // Call onSuccess to trigger the navigation
+                        onSuccess()
+
+                    } catch (e: Exception) {
+                        Log.e("User Creation Error", "User creation failed: ${e.message}")
+
+                        // Handle errors
                         _uiStateFlow.value = state.copy(
                             loginSuccess = false,
-                            loginError = "Login failed. Please check your credentials."
+                            loginError = "User creation failed. Please try again."
                         )
+
+                        Log.d("HomeViewModel", "User creation failed, loginSuccess = false")
                     }
                 }
-            }
-
-            Step.Submit -> {
-                Log.d("Submit", "Submitting user: $state")
-                onSuccess()
             }
 
             else -> {
@@ -123,44 +139,45 @@ class HomeViewModel @Inject constructor(
     }
 
 
+
     enum class Step {
         Welcome,
         Login,
-        Name,
         NetID,
-        Year,
-        Language,
+        Name,
+        Password,
         Level,
-        Bio,
+        Language,
+        Description,
         Submit
     }
 
     fun onNext() {
-        _uiStateFlow.value = uiStateFlow.value.copy(
-            steps = when (uiStateFlow.value.steps) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(
+            steps = when (_uiStateFlow.value.steps) {
                 Step.Welcome -> Step.Login
-                Step.Login -> Step.Name
-                Step.Name -> Step.NetID
-                Step.NetID -> Step.Year
-                Step.Year -> Step.Language
-                Step.Language -> Step.Level
-                Step.Level -> Step.Bio
-                Step.Bio -> Step.Submit
+                Step.Login -> Step.NetID
+                Step.NetID -> Step.Name
+                Step.Name -> Step.Password
+                Step.Password -> Step.Level
+                Step.Level -> Step.Language
+                Step.Language -> Step.Description
+                Step.Description -> Step.Submit
                 Step.Submit -> Step.Submit
             }
         )
     }
 
     fun onBack() {
-        _uiStateFlow.value = uiStateFlow.value.copy(
-            steps = when (uiStateFlow.value.steps) {
-                Step.Submit -> Step.Bio
-                Step.Bio -> Step.Level
-                Step.Level -> Step.Language
-                Step.Language -> Step.Year
-                Step.Year -> Step.NetID
-                Step.NetID -> Step.Name
-                Step.Name -> Step.Login
+        _uiStateFlow.value = _uiStateFlow.value.copy(
+            steps = when (_uiStateFlow.value.steps) {
+                Step.Submit -> Step.Description
+                Step.Description -> Step.Language
+                Step.Language -> Step.Level
+                Step.Level -> Step.Password
+                Step.Password -> Step.Name
+                Step.Name -> Step.NetID
+                Step.NetID -> Step.Login
                 Step.Login -> Step.Welcome
                 Step.Welcome -> Step.Welcome
             }
