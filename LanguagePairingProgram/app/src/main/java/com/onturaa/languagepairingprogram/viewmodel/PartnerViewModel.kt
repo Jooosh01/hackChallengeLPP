@@ -49,9 +49,8 @@ private val retrofitInstance: RetrofitInstance,
         fun getMatches(userId: Int, token: String) {
             viewModelScope.launch {
 
-                users = retrofitInstance.apiService.get_matches(userId)
+                users = retrofitInstance.apiService.getMatches(userId)
 
             }
         }
-    }
 }
