@@ -56,3 +56,8 @@ private val retrofitInstance: RetrofitInstance,
         }
     }
 //}
+                users = retrofitInstance.apiService.getMatches(userId)
+
+            }
+        }
+}
