@@ -215,6 +215,7 @@ def auto_match():
     request.data = request_data_backup  
     return response
 
+# Helper for auto match
 @app.route('/api/matches/', methods=['POST'])
 @jwt_required()
 def create_match():

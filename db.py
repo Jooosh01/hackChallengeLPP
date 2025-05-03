@@ -11,7 +11,7 @@ class User(db.Model):
     level = db.Column(db.String(50), nullable = False)
     match_status = db.Column(db.Boolean, default = False)
     description = db.Column(db.Text)
-    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
+    language_id = db.Column(db.String(50), db.ForeignKey('language.name'))
     profile_picture_url = db.Column(db.String(256))
     score = db.Column(db.Integer, default = 0)
 
@@ -35,8 +35,8 @@ class User(db.Model):
 
 class Language(db.Model):
     __tablename__ = 'language'
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(50), unique = True , nullable = False)
+    id = db.Column(db.Integer)
+    name = db.Column(db.String(50), primary_key = True, unique = True, nullable = False)
     flag_url = db.Column(db.String(200))
 
     users = db.relationship('User', back_populates = 'language')
