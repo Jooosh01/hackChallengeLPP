@@ -3,14 +3,13 @@ package com.onturaa.languagepairingprogram.retrofit
 import com.onturaa.languagepairingprogram.model.Language
 import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.model.LoginRequest
-import com.onturaa.languagepairingprogram.model.User
+import com.onturaa.languagepairingprogram.model.UserRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface ApiService {
 
@@ -21,13 +20,8 @@ interface ApiService {
 
     @POST("api/users/")
     suspend fun createUser(
-        @Query("netID") netID: String? = "",
-        @Query("name") name: String? = "",
-        @Query("password") password: String? = "",
-        @Query("level") level: String? = "",
-        @Query("language") language: String? = "",
-        @Query("description") description: String? = ""
-    ): User
+        @Body userRequest: UserRequest
+    ): UserRequest
 
     @GET("api/languages/")
     suspend fun getLanguages(): List<Language>

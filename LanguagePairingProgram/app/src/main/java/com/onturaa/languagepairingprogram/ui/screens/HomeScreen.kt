@@ -3,6 +3,7 @@ package com.onturaa.languagepairingprogram.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -16,11 +17,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.onturaa.languagepairingprogram.model.Language
 import com.onturaa.languagepairingprogram.ui.components.HomeButtons
+import com.onturaa.languagepairingprogram.ui.components.LanguageCard
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPGreen
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
 import com.onturaa.languagepairingprogram.viewmodel.HomeViewModel
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun HomeScreen(
@@ -73,22 +77,22 @@ fun HomeScreen(
                 )
             }
 
+            HomeViewModel.Step.Language -> {
+                LanguageSelectionScreen(
+                    viewModel = viewModel,
+                    onLanguageSelected = {
+                        viewModel.onLanguageSelected(it)
+                        viewModel.onNext()
+                    }
+                )
+            }
+
             HomeViewModel.Step.Level -> {
                 TextSubScreen(
                     viewModel = viewModel,
                     isSendEnabled = uiState.isSendEnabled,
                     placeholder = HomeViewModel.Step.Level.toString(),
                     value = uiState.level,
-                    onValueChange = { viewModel.onTextChanged(it) }
-                )
-            }
-
-            HomeViewModel.Step.Language -> {
-                TextSubScreen(
-                    viewModel = viewModel,
-                    isSendEnabled = uiState.isSendEnabled,
-                    placeholder = HomeViewModel.Step.Language.toString(),
-                    value = uiState.language,
                     onValueChange = { viewModel.onTextChanged(it) }
                 )
             }
@@ -236,3 +240,36 @@ private fun TextSubScreen(
 
     HomeButtons(viewModel = viewModel, isSendEnabled = isSendEnabled)
 }
+
+@Composable
+fun LanguageSelectionScreen(
+    viewModel: HomeViewModel,
+    onLanguageSelected: (Language) -> Unit
+) {
+    val languages by viewModel.languages.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadLanguages()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        LazyColumn {
+            items(languages) { language ->
+                LanguageCard(language = language) {
+                    viewModel.onLanguageSelected(language)
+                    viewModel.onNext()
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        HomeButtons(viewModel = viewModel, true)
+    }
+}
+

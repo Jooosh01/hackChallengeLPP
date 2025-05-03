@@ -4,9 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.onturaa.languagepairingprogram.model.Language
-import com.onturaa.languagepairingprogram.model.LoginRequest
-import com.onturaa.languagepairingprogram.model.User
-import com.onturaa.languagepairingprogram.retrofit.RetrofitInstance
+import com.onturaa.languagepairingprogram.model.UserRequest
+import com.onturaa.languagepairingprogram.retrofit.ApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val retrofitInstance: RetrofitInstance
+    private val apiService: ApiService
 ) : ViewModel() {
 
     private val _uiStateFlow = MutableStateFlow(
@@ -30,6 +29,7 @@ class HomeViewModel @Inject constructor(
         val password: String = "",
         val level: String = "",
         val language: String = "",
+        val languageId: Int = -1,
         val bio: String = "",
         val sendSuccess: Boolean = false,
         val sendError: String? = null
@@ -78,14 +78,16 @@ class HomeViewModel @Inject constructor(
             Step.Submit -> {
                 viewModelScope.launch {
                     try {
-                        val user = retrofitInstance.apiService.createUser(
+                        val userRequest = UserRequest(
                             netID = state.netID,
                             name = state.name,
                             password = state.password,
                             level = state.level,
-                            language = state.language,
+                            languageId = 1,
                             description = state.bio
                         )
+
+                        val user = apiService.createUser(userRequest)
 
                         _uiStateFlow.value = state.copy(
                             sendSuccess = true,
@@ -110,14 +112,13 @@ class HomeViewModel @Inject constructor(
     }
 
 
-
     enum class Step {
         Welcome,
         NetID,
         Name,
         Password,
-        Level,
         Language,
+        Level,
         Description,
         Submit
     }
@@ -150,6 +151,80 @@ class HomeViewModel @Inject constructor(
                 Step.NetID -> Step.Welcome
                 Step.Welcome -> Step.Welcome
             }
+        )
+    }
+
+    private val _languages = MutableStateFlow<List<Language>>(emptyList())
+    val languages = _languages.asStateFlow()
+
+    fun loadLanguages() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getLanguages()
+                _languages.value = response
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Failed to fetch languages, using fallback", e)
+                _languages.value = listOf(
+                    Language(
+                        id = 1,
+                        name = "English",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/english.png"
+                    ),
+                    Language(
+                        id = 2,
+                        name = "Spanish",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/spanish.png"
+                    ),
+                    Language(
+                        id = 3,
+                        name = "Mandarin",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/mandarin.png"
+                    ),
+                    Language(
+                        id = 4,
+                        name = "Polish ",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/polish.png"
+                    ),
+                    Language(
+                        id = 5,
+                        name = "Twi",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/twi.png"
+                    ),
+                    Language(
+                        id = 1,
+                        name = "English",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/english.png"
+                    ),
+                    Language(
+                        id = 2,
+                        name = "Spanish",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/spanish.png"
+                    ),
+                    Language(
+                        id = 3,
+                        name = "Mandarin",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/mandarin.png"
+                    ),
+                    Language(
+                        id = 4,
+                        name = "Polish ",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/polish.png"
+                    ),
+                    Language(
+                        id = 5,
+                        name = "Twi",
+                        flagUrl = "https://lpphack.s3.us-east-2.amazonaws.com/twi.png"
+                    )
+                )
+            }
+        }
+    }
+
+
+    fun onLanguageSelected(language: Language) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(
+            language = language.name,
+            languageId = language.id
         )
     }
 

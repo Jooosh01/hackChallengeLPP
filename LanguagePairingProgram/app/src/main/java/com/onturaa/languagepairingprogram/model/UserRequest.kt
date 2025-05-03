@@ -1,10 +1,10 @@
 package com.onturaa.languagepairingprogram.model
 
-data class User (
+data class UserRequest (
     val netID: String,
     val name: String,
     val password: String,
     val level: String,
-    val language: String,
-    val bio: String
+    val languageId: Int,
+    val description: String
 )
