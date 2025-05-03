@@ -45,8 +45,6 @@ fun HomeScreen(
     val uiState by viewModel.uiStateFlow.collectAsState()
     val states = uiState.steps
 
-    Log.d("HomeScreen", "isSendEnabled: ${uiState.isSendEnabled}, userInput: ${uiState.userInput}")
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -194,6 +192,8 @@ private fun LoginSubScreen(
     onNetIDChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit
 ) {
+    val uiState by viewModel.uiStateFlow.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -202,16 +202,6 @@ private fun LoginSubScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = " ",
-            fontSize = 30.sp,
-            color = Color.DarkGray,
-            textAlign = TextAlign.Center,
-            lineHeight = 36.sp
-        )
-
-        Spacer(Modifier.height(14.dp))
-
         Text(
             text = "Login",
             fontSize = 36.sp,
@@ -229,8 +219,7 @@ private fun LoginSubScreen(
                 onValueChange = {
                     onNetIDChange(it)
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextField(
@@ -241,16 +230,65 @@ private fun LoginSubScreen(
                 onValueChange = {
                     onPasswordChange(it)
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
+
+            // 👇 Error message displayed here if login failed
+            if (uiState.loginError != null) {
+                Text(
+                    text = uiState.loginError!!,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
         }
 
         Spacer(Modifier.height(28.dp))
 
-        HomeButtons(viewModel, isSendEnabled = isSendEnabled)
+        Row {
+            Button(
+                onClick = {
+                    viewModel.onBack()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LEPPurple
+                )
+            ) {
+                Text(
+                    text = "BACK",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = LEPBeige
+                )
+            }
+
+            Spacer(Modifier.width(28.dp))
+
+            Button(
+                onClick = {
+                    viewModel.onSend {
+                        if (viewModel.uiStateFlow.value.loginSuccess) {
+                            viewModel.onNext()
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LEPPurple
+                ),
+                enabled = isSendEnabled
+            ) {
+                Text(
+                    text = "LOGIN",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = LEPBeige
+                )
+            }
+        }
     }
 }
+
+
 
 @Composable
 private fun TextSubScreen(

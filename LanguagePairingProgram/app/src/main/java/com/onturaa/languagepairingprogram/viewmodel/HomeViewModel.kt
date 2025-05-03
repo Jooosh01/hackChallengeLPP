@@ -3,6 +3,7 @@ package com.onturaa.languagepairingprogram.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.onturaa.languagepairingprogram.model.LoginRequest
 import com.onturaa.languagepairingprogram.retrofit.RetrofitInstance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,39 +14,61 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val retrofitInstance: RetrofitInstance
-
 ) : ViewModel() {
 
     private val _uiStateFlow = MutableStateFlow(
-        UiState(
-            steps = Step.Welcome
-        )
+        UiState(steps = Step.Welcome)
     )
     val uiStateFlow = _uiStateFlow.asStateFlow()
 
     data class UiState(
         val steps: Step = Step.Welcome,
-        val userInput: String = "",
         val name: String = "",
         val netID: String = "",
         val year: String = "",
         val language: String = "",
         val level: String = "",
         val bio: String = "",
-        val password: String = ""
+        val password: String = "",
+        val loginSuccess: Boolean = false,
+        val loginError: String? = null
     ) {
+        private fun isValidNetID(): Boolean {
+            return netID.matches(Regex("^[a-z]{2,}\\d{2,}$"))
+        }
+
+        private fun isValidPassword(): Boolean {
+            return password.length >= 5
+        }
+
         val isSendEnabled: Boolean
             get() = when (steps) {
-                Step.Login -> netID.isNotBlank() && password.isNotBlank()
+                Step.Login -> isValidNetID() && isValidPassword()
                 Step.Name -> name.isNotBlank()
-                Step.NetID -> netID.isNotBlank()
+                Step.NetID -> isValidNetID()
                 Step.Year -> year.isNotBlank()
                 Step.Language -> language.isNotBlank()
                 Step.Level -> level.isNotBlank()
                 Step.Bio -> bio.isNotBlank()
                 Step.Submit -> true
-                else -> userInput.isNotBlank()
+                else -> false
             }
+    }
+
+    fun onTextChanged(text: String) {
+        val currentState = _uiStateFlow.value
+        val updatedState = when (currentState.steps) {
+            Step.Name -> currentState.copy(name = text)
+            Step.NetID -> currentState.copy(netID = text)
+            Step.Year -> currentState.copy(year = text)
+            Step.Language -> currentState.copy(language = text)
+            Step.Level -> currentState.copy(level = text)
+            Step.Bio -> currentState.copy(bio = text)
+            else -> currentState
+        }
+
+        Log.d("onTextChanged", "Updated state: $updatedState")
+        _uiStateFlow.value = updatedState
     }
 
     fun onNetIDChanged(text: String) {
@@ -58,59 +81,47 @@ class HomeViewModel @Inject constructor(
         _uiStateFlow.value = currentState.copy(password = text)
     }
 
-    fun onTextChanged(text: String) {
-        val currentState = _uiStateFlow.value
-        Log.d("onTextChanged", "Current userInput: ${currentState.userInput}, New input: $text")
-
-        val updatedState = when (currentState.steps) {
-            Step.Name -> currentState.copy(name = text, userInput = text)
-            Step.NetID -> currentState.copy(netID = text, userInput = text)
-            Step.Year -> currentState.copy(year = text, userInput = text)
-            Step.Language -> currentState.copy(language = text, userInput = text)
-            Step.Level -> currentState.copy(level = text, userInput = text)
-            Step.Bio -> currentState.copy(bio = text, userInput = text)
-            else -> currentState.copy(userInput = text)
-        }
-//        }.copy(userInput = text)
-
-        Log.d("onTextChanged", "Updated state: $updatedState")
-
-        _uiStateFlow.value = updatedState
-    }
-
     fun onSend(onSuccess: () -> Unit = {}) {
-        val input = _uiStateFlow.value.userInput
+        val state = _uiStateFlow.value
 
-        val updatedState = when (_uiStateFlow.value.steps) {
-            Step.Name -> _uiStateFlow.value.copy(name = input)
-            Step.NetID -> _uiStateFlow.value.copy(netID = input)
-            Step.Year -> _uiStateFlow.value.copy(year = input)
-            Step.Language -> _uiStateFlow.value.copy(language = input)
-            Step.Level -> _uiStateFlow.value.copy(level = input)
-            Step.Bio -> _uiStateFlow.value.copy(bio = input)
-            else -> _uiStateFlow.value
-        }
-        _uiStateFlow.value = updatedState.copy(userInput = "")
+        when (state.steps) {
+            Step.Login -> {
+                viewModelScope.launch {
+                    try {
+                        val loginRequest = LoginRequest(
+                            netID = state.netID,
+                            password = state.password
+                        )
+                        val user = retrofitInstance.apiService.login(loginRequest)
+                        Log.d("Login", "User logged in: $user")
 
-        if (_uiStateFlow.value.steps == Step.Submit) {
-            val state = _uiStateFlow.value
-            viewModelScope.launch {
-                try {
-                    val user = retrofitInstance.apiService.createUser(
-                        netID = state.netID,
-                        name = state.name,
-                        level = state.level,
-                        description = state.bio,
-                        language_id = getLanguageIdFromName(state.language),
-                        password = state.password
-                    )
-                    println("User created: $user")
-                } catch (e: Exception) {
-                    Log.e("NetworkError", "Error creating user: ${e.message}")
+                        _uiStateFlow.value = state.copy(
+                            loginSuccess = true,
+                            loginError = null
+                        )
+                        onSuccess()
+                    } catch (e: Exception) {
+                        Log.e("LoginError", "Login failed: ${e.message}")
+
+                        _uiStateFlow.value = state.copy(
+                            loginSuccess = false,
+                            loginError = "Login failed. Please check your credentials."
+                        )
+                    }
                 }
+            }
+
+            Step.Submit -> {
+                Log.d("Submit", "Submitting user: $state")
+                onSuccess()
+            }
+
+            else -> {
+                onSuccess()
             }
         }
     }
+
 
     enum class Step {
         Welcome,

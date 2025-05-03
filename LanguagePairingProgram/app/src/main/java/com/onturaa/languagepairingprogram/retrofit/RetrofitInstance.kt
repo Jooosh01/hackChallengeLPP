@@ -8,7 +8,13 @@ import javax.inject.Singleton
 
 @Singleton
 class RetrofitInstance @Inject constructor() {
-    private val apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5MmQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU"
+    companion object {
+        const val apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+                "eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjE1MzYwMiwianRpIjoiNDhlM2UyZDAtNzU5NC00NDk2LWE5M" +
+                "mQtZDRjYmMxNzIzZDM5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NDYxNTM2MDIsImV" +
+                "4cCI6MTc0NjE1NDUwMn0.BpHoWeENOjJsYXOtF3NY8n_zlCi0hc3-TBAflfyqzjU"
+
+    }
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->
