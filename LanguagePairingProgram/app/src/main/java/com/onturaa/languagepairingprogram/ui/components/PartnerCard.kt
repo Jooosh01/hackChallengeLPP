@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.onturaa.languagepairingprogram.model.PartnerRepository
 import com.onturaa.languagepairingprogram.ui.theme.LEPBeige
 import com.onturaa.languagepairingprogram.ui.theme.LEPPurple
@@ -52,7 +53,7 @@ fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
             Column(modifier = Modifier
                 .padding(20.dp)
                 .fillMaxHeight(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Bottom) {
-
+AsyncImage(model = partner.language.flag_url, contentDescription = null)
                 Text(partner.level)
             }
         }
@@ -63,8 +64,8 @@ fun PartnerCard (partner: PartnerRepository.Partner, lang: String) {
 fun PartnerCardPreview(){
     val fakePartner = PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
         3,
-        "Japanse",
-    "val flag_url: String"))
+        "Japanese",
+    "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png"))
     PartnerCard(fakePartner, "Japanese")
 }
 

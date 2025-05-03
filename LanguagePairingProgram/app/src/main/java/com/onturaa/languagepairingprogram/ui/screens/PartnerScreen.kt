@@ -90,20 +90,20 @@ private fun PartnerLayout(
     val fakeList: List<PartnerRepository.Partner> = listOf(
         PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
             3,
-            "Japanse",
-            "val flag_url: String")) ,
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")) ,
     PartnerRepository.Partner(2, "dib42", "Daria", "Intermediate", false, null, PartnerRepository.Language(
         2,
-        "Japanse",
-        "val flag_url: String")),
+        "Japanese",
+        "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
         PartnerRepository.Partner(1, "jaw542", "John", "High Intermediate", false, null, PartnerRepository.Language(
             3,
-            "Japanse",
-            "val flag_url: String")),
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png")),
                 PartnerRepository.Partner(4, "jaw542", "Lilian", "Beginner", false, null, PartnerRepository.Language(
             3,
-            "Japanse",
-            "val flag_url: String"))
+            "Japanese",
+            "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png"))
 
     )
     Column(
@@ -149,7 +149,7 @@ private fun PartnerLayout(
 fun PartnerScreenPreview() {
    val fakePart = PartnerRepository.Partner(3, "jaw542", "Josh", "Beginner", false, null, PartnerRepository.Language(
         3,
-        "Japanse",
-        "val flag_url: String"))
+        "Japanese",
+        "https://lpphack.s3.us-east-2.amazonaws.com/japanese.png"))
     PartnerLayout(fakePart)
 }
