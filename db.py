@@ -95,6 +95,7 @@ class Message(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     content = db.Column(db.String(750), nullable=False)
     timestamp = db.Column(db.DateTime, server_default = db.func.now())
+    rating = db.Column(db.Integer, default = 0);
 
     chatroom = db.relationship('Chatroom', back_populates="messages")
 
@@ -108,7 +109,7 @@ class Message(db.Model):
         }
     
 
-def add_langauges():
+def add_languages():
     initial_languages = [
         { 'name': 'Arabic', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/arabic.png' },
         { 'name': 'Bengali', 'flag_url': 'https://lpphack.s3.us-east-2.amazonaws.com/bengali.png' },
